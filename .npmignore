@@ -1,0 +1,4 @@
+.mocharc.cjs
+.c8rc
+coverage/
+test/

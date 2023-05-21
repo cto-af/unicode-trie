@@ -1,25 +1,13 @@
 const isBigEndian = (new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x12);
 
-const swap = (b, n, m) => {
-  let i = b[n];
-  b[n] = b[m];
-  b[m] = i;
-};
-
 const swap32 = array => {
   const len = array.length;
   for (let i = 0; i < len; i += 4) {
-    swap(array, i, i + 3);
-    swap(array, i + 1, i + 2);
+    [array[i], array[i + 1], array[i + 2], array[i + 3]] =
+      [array[i + 3], array[i + 2], array[i + 1], array[i]]
   }
 };
 
-const swap32LE = array => {
-  if (isBigEndian) {
-    swap32(array);
-  }
-};
+const noOp = () => {};
 
-module.exports = {
-  swap32LE: swap32LE
-};
+export const swap32LE = isBigEndian ? swap32 : noOp;

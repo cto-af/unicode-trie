@@ -1,12 +1,28 @@
 {
-  "name": "@ctoaf/unicode-trie",
+  "name": "@cto.af/unicode-trie",
   "version": "0.0.0",
-  "description": "Quick fork of unicode-trie reader code for modernity",
+  "description": "Quick fork of unicode-trie for modernity",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "c8 mocha"
   },
-  "keywords": [],
-  "author": "Joe Hildebrand <joe-github@cursive.net>",
-  "license": "MIT"
+  "keywords": [
+    "unicode",
+    "properties",
+    "icu",
+    "trie",
+    "compressed",
+    "brotli"
+  ],
+  "author": "Devon Govett <devongovett@gmail.com>",
+  "contributors": [
+    "Joe Hildebrand <joe-github@cursive.net>"
+  ],
+  "repository": "cto-af/unicode-trie",
+  "license": "MIT",
+  "devDependencies": {
+    "c8": "7.13.0",
+    "mocha": "10.2.0"
+  }
 }

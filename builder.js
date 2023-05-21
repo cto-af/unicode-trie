@@ -1,6 +1,6 @@
-const UnicodeTrie = require('./');
-const pako = require('pako');
-const { swap32LE } = require('./swap');
+import {UnicodeTrie} from './index.js'
+import {swap32LE} from './swap.js'
+import {brotliCompressSync} from 'zlib'
 
 // Shift size for getting the index-1 table offset.
 const SHIFT_1 = 6 + 5;
@@ -149,17 +149,20 @@ const equal_int = (a, s, t, length) => {
   return true;
 };
 
-class UnicodeTrieBuilder {
-  constructor(initialValue, errorValue) {
+export class UnicodeTrieBuilder {
+  constructor(initialValue, errorValue, values = []) {
     let i, j;
+    this.values = values;
+    this.valueMap = Object.fromEntries(values.map((v, i) => [v, i]));
+
     if (initialValue == null) {
       initialValue = 0;
     }
-    this.initialValue = initialValue;
+    this.initialValue = this.mapValue(initialValue);
     if (errorValue == null) {
       errorValue = 0;
     }
-    this.errorValue = errorValue;
+    this.errorValue = this.mapValue(errorValue);
     this.index1 = new Int32Array(INDEX_1_LENGTH);
     this.index2 = new Int32Array(MAX_INDEX_2_LENGTH);
     this.highStart = 0x110000;
@@ -263,6 +266,18 @@ class UnicodeTrieBuilder {
 
   }
 
+  mapValue(value) {
+    if (typeof value !== 'number') {
+      let v = this.valueMap[value]
+      if (v == null) {
+        v = this.values.push(value) - 1
+        this.valueMap[value] = v
+      } 
+      return v
+    }
+    return value
+  }
+
   set(codePoint, value) {
     if ((codePoint < 0) || (codePoint > 0x10ffff)) {
       throw new Error('Invalid code point');
@@ -272,6 +287,7 @@ class UnicodeTrieBuilder {
       throw new Error('Already compacted');
     }
 
+    value = this.mapValue(value)
     const block = this._getDataBlock(codePoint, true);
     this.data[block + (codePoint & DATA_MASK)] = value;
     return this;
@@ -294,6 +310,7 @@ class UnicodeTrieBuilder {
       return this; // nothing to do
     }
 
+    value = this.mapValue(value)
     let limit = end + 1;
     if ((start & DATA_MASK) !== 0) {
       // set partial block at [start..following block boundary
@@ -926,7 +943,8 @@ class UnicodeTrieBuilder {
     const dest = new UnicodeTrie({
       data,
       highStart: this.highStart,
-      errorValue: this.errorValue
+      errorValue: this.errorValue,
+      values: this.values
     });
 
     return dest;
@@ -947,20 +965,18 @@ class UnicodeTrieBuilder {
     // swap bytes to little-endian
     swap32LE(data);
 
-    let compressed = pako.deflateRaw(data);
-    compressed = pako.deflateRaw(compressed);
+    const compressed = brotliCompressSync(data)
 
-    const buf = Buffer.alloc(compressed.length + 12);
+    const values = Buffer.from(JSON.stringify(trie.values), 'utf8')
+    const compressedValues = brotliCompressSync(values)
+
+    const buf = Buffer.alloc(12 + compressed.length + compressedValues.length);
     buf.writeUInt32LE(trie.highStart, 0);
     buf.writeUInt32LE(trie.errorValue, 4);
-    buf.writeUInt32LE(data.length, 8);
-    for (let i = 0; i < compressed.length; i++) {
-      const b = compressed[i];
-      buf[i + 12] = b;
-    }
+    buf.writeUInt32LE(compressed.length, 8);
+    compressed.copy(buf, 12);
+    compressedValues.copy(buf, 12 + compressed.length)
 
     return buf;
   }
 }
-
-module.exports = UnicodeTrieBuilder;
