@@ -1,5 +1,5 @@
-import {brotliDecompressSync} from 'zlib'
-import {swap32LE} from './swap.js';
+import { brotliDecompressSync } from "zlib";
+import { swap32LE } from "./swap.js";
 
 // Shift size for getting the index-1 table offset.
 const SHIFT_1 = 6 + 5;
@@ -65,11 +65,11 @@ const DATA_GRANULARITY = 1 << INDEX_SHIFT;
 
 export class UnicodeTrie {
   constructor(data) {
-    const isBuffer = (typeof data.readUInt32BE === 'function') && (typeof data.slice === 'function');
+    const isBuffer = (typeof data.readUInt32BE === "function") && (typeof data.slice === "function");
 
     if (isBuffer || data instanceof Uint8Array) {
-      // read binary format
-      let uncompressedLength;
+      // Read binary format
+      let uncompressedLength = 0;
       if (isBuffer) {
         this.highStart = data.readUInt32LE(0);
         this.errorValue = data.readUInt32LE(4);
@@ -83,43 +83,56 @@ export class UnicodeTrie {
 
       // Don't swap UTF8-encoded text.
       const values = data.subarray(12 + uncompressedLength);
-      this.values = values.length ? JSON.parse(brotliDecompressSync(values)) : [];
+      this.values = values.length
+        ? JSON.parse(brotliDecompressSync(values))
+        : [];
 
-      // inflate the actual trie data
+      // Inflate the actual trie data
       data = brotliDecompressSync(data.subarray(12, 12 + uncompressedLength));
 
-      // swap bytes from little-endian
+      // Swap bytes from little-endian
       swap32LE(data);
 
       this.data = new Uint32Array(data.buffer);
-
     } else {
-      // pre-parsed data
-      ({ data: this.data, highStart: this.highStart, errorValue: this.errorValue, values: this.values } = data);
+      // Pre-parsed data
+      ({
+        data: this.data,
+        highStart: this.highStart,
+        errorValue: this.errorValue,
+        values: this.values,
+      } = data);
     }
   }
 
   get(codePoint) {
-    let index;
-    let val;
+    let val = this.errorValue;
     if ((codePoint < 0) || (codePoint > 0x10ffff)) {
-      val = this.errorValue
-    } else if ((codePoint < 0xd800) || ((codePoint > 0xdbff) && (codePoint <= 0xffff))) {
+      val = this.errorValue;
+    } else if (
+      (codePoint < 0xd800) || ((codePoint > 0xdbff) && (codePoint <= 0xffff))
+    ) {
       // Ordinary BMP code point, excluding leading surrogates.
       // BMP uses a single level lookup.  BMP index starts at offset 0 in the index.
       // data is stored in the index array itself.
-      index = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) + (codePoint & DATA_MASK);
-      val = this.data[index]
+      const index = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT)
+        + (codePoint & DATA_MASK);
+      val = this.data[index];
     } else if (codePoint <= 0xffff) {
       // Lead Surrogate Code Point.  A Separate index section is stored for
       // lead surrogate code units and code points.
       //   The main index has the code unit data.
       //   For this function, we need the code point data.
-      index = (this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)] << INDEX_SHIFT) + (codePoint & DATA_MASK);
+      const index = (
+        this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)]
+          << INDEX_SHIFT
+      ) + (codePoint & DATA_MASK);
       val = this.data[index];
     } else if (codePoint < this.highStart) {
       // Supplemental code point, use two-level lookup.
-      index = this.data[(INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH) + (codePoint >> SHIFT_1)];
+      let index = this.data[
+        (INDEX_1_OFFSET - OMITTED_BMP_INDEX_1_LENGTH) + (codePoint >> SHIFT_1)
+      ];
       index = this.data[index + ((codePoint >> SHIFT_2) & INDEX_2_MASK)];
       index = (index << INDEX_SHIFT) + (codePoint & DATA_MASK);
       val = this.data[index];
@@ -127,6 +140,6 @@ export class UnicodeTrie {
       val = this.data[this.data.length - DATA_GRANULARITY];
     }
 
-    return this.values[val] ?? val
+    return this.values[val] ?? val;
   }
 }
