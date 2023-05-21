@@ -1,0 +1,12 @@
+{
+  "name": "@ctoaf/unicode-trie",
+  "version": "0.0.0",
+  "description": "Quick fork of unicode-trie reader code for modernity",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Joe Hildebrand <joe-github@cursive.net>",
+  "license": "MIT"
+}
