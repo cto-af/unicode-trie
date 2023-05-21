@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "c8 mocha"
+    "test": "c8 mocha",
+    "lint": "eslint . --ext js"
   },
   "keywords": [
     "unicode",
@@ -22,7 +23,9 @@
   "repository": "cto-af/unicode-trie",
   "license": "MIT",
   "devDependencies": {
+    "@peggyjs/eslint-config": "3.0.1",
     "c8": "7.13.0",
+    "eslint": "8.41.0",
     "mocha": "10.2.0"
   }
 }
