@@ -1,6 +1,7 @@
 import { UnicodeTrie } from "../index.js";
 import { UnicodeTrieBuilder } from "../builder.js";
 import assert from "assert";
+import { brotliCompressSync } from "zlib";
 
 describe("unicode trie", () => {
   it("set", () => {
@@ -21,6 +22,14 @@ describe("unicode trie", () => {
     assert.equal(trie.get(0x4567), 99);
     assert.equal(trie.get(-1), 666);
     assert.equal(trie.get(0x110000), 666);
+  });
+
+  it("handles set errors", () => {
+    const t = new UnicodeTrieBuilder(10, 666);
+    assert.throws(() => t.set(-1, 12));
+    assert.throws(() => t.set(0x110000, 12));
+    t.freeze();
+    assert.throws(() => t.set(1, 12));
   });
 
   it("setRange", () => {
@@ -52,6 +61,17 @@ describe("unicode trie", () => {
     assert.equal(trie.get(0x110000), 666);
   });
 
+  it("handles setRange errors", () => {
+    const t = new UnicodeTrieBuilder(10, 666);
+    assert.throws(() => t.setRange(-1, 2, 12));
+    assert.throws(() => t.setRange(2, -1, 12));
+    assert.throws(() => t.setRange(2, 1, 12));
+    assert.throws(() => t.setRange(0x110000, 0x110001, 12));
+    assert.throws(() => t.setRange(1, 0x110001, 12));
+    t.freeze();
+    assert.throws(() => t.setRange(1, 2, 12));
+  });
+
   it("toBuffer written in little-endian", () => {
     const trie = new UnicodeTrieBuilder();
     trie.set(0x4567, 99);
@@ -77,6 +97,39 @@ describe("unicode trie", () => {
     assert.equal(trie.get(7000), 9900);
     assert.equal(trie.get(7001), 10);
     assert.equal(trie.get(0x110000), 666);
+  });
+
+  it("should take a Uint8Array as serialization", () => {
+    const t = new UnicodeTrieBuilder("XX", "YY");
+    t.setRange(13, 6666, "ZZ");
+
+    const buf = t.toBuffer();
+    const ubuf = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+    const trie = new UnicodeTrie(ubuf);
+    assert.equal(trie.get(12), "XX");
+    assert.equal(trie.get(13), "ZZ");
+    assert.equal(trie.get(0x110000), "YY");
+  });
+
+  it("should handle the old format without string map", () => {
+    const t = new UnicodeTrieBuilder(1);
+    const buf = t.toBuffer();
+    const strings = brotliCompressSync(JSON.stringify([]));
+    const trie = new UnicodeTrie(buf.subarray(0, buf.length - strings.length));
+    assert.equal(trie.get(13), 1);
+  });
+
+  it("handles out of memory errors", () => {
+    const t = new UnicodeTrieBuilder(1);
+    const SMALL = 1 << 8;
+    t.data = new Uint32Array(SMALL);
+    t.dataCapacity = SMALL;
+    for (let i = 0; i < 0x110000; i++) {
+      t.set(i, 2);
+    }
+    assert.equal(t.get(2), 2);
+    const trie = t.freeze();
+    assert.equal(trie.get(2), 2);
   });
 
   const rangeTests = [

@@ -304,7 +304,12 @@ export class UnicodeTrieBuilder {
     if (overwrite == null) {
       overwrite = true;
     }
-    if ((start > 0x10ffff) || (end > 0x10ffff) || (start > end)) {
+    if ((start < 0)
+      || (start > 0x10ffff)
+      || (end < 0)
+      || (end > 0x10ffff)
+      || (start > end)
+    ) {
       throw new Error("Invalid code point");
     }
 
