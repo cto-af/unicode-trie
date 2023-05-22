@@ -1,4 +1,5 @@
 # unicode-trie
+
 A data structure for fast Unicode character metadata lookup, ported from ICU
 This version was copied from https://github.com/foliojs/unicode-trie and
 modernized slightly.
@@ -88,3 +89,7 @@ trie.get(0x4567); // => 99 or 'FOO' (if a string was stored)
 ## License
 
 MIT
+
+---
+[![Tests](https://github.com/cto-af/unicode-trie/actions/workflows/node.js.yml/badge.svg)](https://github.com/cto-af/unicode-trie/actions/workflows/node.js.yml)
+[![codecov](https://codecov.io/gh/cto-af/unicode-trie/branch/main/graph/badge.svg?token=JVBOYR3GWY)](https://codecov.io/gh/cto-af/unicode-trie)
