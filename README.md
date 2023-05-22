@@ -1,4 +1,4 @@
-# unicode-trie
+# @cto.af/unicode-trie
 
 A data structure for fast Unicode character metadata lookup, ported from ICU
 This version was copied from https://github.com/foliojs/unicode-trie and
@@ -84,6 +84,19 @@ const trie = new UnicodeTrie(data);
 
 // lookup a value
 trie.get(0x4567); // => 99 or 'FOO' (if a string was stored)
+```
+
+## Example usage
+
+There is an example in the [examples](examples/) directory showing how to parse
+a sample UCD data file, create a trie, and use it at runtime.  To run it:
+
+```sh
+cd examples
+# Create trie in lineBreak.js
+./genLineBreak.js
+# Get the Line_Break property of codePoint U+000A, which is "LF"
+./getLineBreak.js 000a
 ```
 
 ## License

@@ -6,3 +6,4 @@ test/
 .eslintrc.cjs
 .github/
 tsconfig.json
+examples/
