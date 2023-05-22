@@ -12,11 +12,12 @@ module.exports = {
       files: ["*.js"],
       parserOptions: {
         sourceType: "module",
-        ecmaVersion: 2021,
+        ecmaVersion: 2022,
       },
       rules: {
         "no-eq-null": "off",
         "eqeqeq": ["error", "always", { "null": "ignore" }],
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
       },
     },
     {

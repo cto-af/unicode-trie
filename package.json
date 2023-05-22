@@ -4,9 +4,12 @@
   "description": "Quick fork of unicode-trie for modernity",
   "main": "index.js",
   "type": "module",
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "c8 mocha",
-    "lint": "eslint . --ext js"
+    "lint": "eslint . --ext js",
+    "types": "tsc",
+    "build": "npm run lint && npm run types && npm run test"
   },
   "keywords": [
     "unicode",
@@ -24,9 +27,11 @@
   "license": "MIT",
   "devDependencies": {
     "@peggyjs/eslint-config": "3.0.1",
+    "@types/node": "20.2.3",
     "c8": "7.13.0",
     "eslint": "8.41.0",
-    "mocha": "10.2.0"
+    "mocha": "10.2.0",
+    "typescript": "5.0.4"
   },
   "engines": {
     "node": ">=16"

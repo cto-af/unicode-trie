@@ -64,13 +64,24 @@ const INDEX_1_OFFSET = UTF8_2B_INDEX_2_OFFSET + UTF8_2B_INDEX_2_LENGTH;
 const DATA_GRANULARITY = 1 << INDEX_SHIFT;
 
 export class UnicodeTrie {
-  constructor(data) {
-    const isBuffer = (typeof data.readUInt32BE === "function") && (typeof data.slice === "function");
+  /**
+   * @typedef {object} TrieValues
+   * @prop {Int32Array} data
+   * @prop {number} highStart
+   * @prop {number} errorValue
+   * @prop {string[]} [values]
+   */
 
-    if (isBuffer || data instanceof Uint8Array) {
+  /**
+   * Createa a trie, either from compressed data or pre-parsed values.
+   *
+   * @param {Buffer|Uint8Array|TrieValues} data
+   */
+  constructor(data) {
+    if (data instanceof Uint8Array) {
       // Read binary format
       let uncompressedLength = 0;
-      if (isBuffer) {
+      if (Buffer.isBuffer(data)) {
         this.highStart = data.readUInt32LE(0);
         this.errorValue = data.readUInt32LE(4);
         uncompressedLength = data.readUInt32LE(8);
@@ -83,8 +94,12 @@ export class UnicodeTrie {
 
       // Don't swap UTF8-encoded text.
       const values = data.subarray(12 + uncompressedLength);
+
+      /**
+       * @type{string[]}
+       */
       this.values = values.length
-        ? JSON.parse(brotliDecompressSync(values))
+        ? JSON.parse(brotliDecompressSync(values).toString("utf8"))
         : [];
 
       // Inflate the actual trie data
@@ -93,18 +108,28 @@ export class UnicodeTrie {
       // Swap bytes from little-endian
       swap32LE(data);
 
-      this.data = new Uint32Array(data.buffer);
+      /**
+       * @type {Int32Array}
+       */
+      this.data = new Int32Array(data.buffer);
     } else {
       // Pre-parsed data
       ({
         data: this.data,
         highStart: this.highStart,
         errorValue: this.errorValue,
-        values: this.values,
+        values: this.values = [],
       } = data);
     }
   }
 
+  /**
+   * Get the value associated with a codepoint, or the default value, or the
+   * error value if codePoint is out of range.
+   *
+   * @param {number} codePoint
+   * @returns {number|string}
+   */
   get(codePoint) {
     let val = this.errorValue;
     if ((codePoint < 0) || (codePoint > 0x10ffff)) {

@@ -8,6 +8,7 @@ describe("unicode trie", () => {
     const trie = new UnicodeTrieBuilder(10, 666);
     trie.set(0x4567, 99);
     assert.equal(trie.get(0x4566), 10);
+    assert.equal(trie.getString(0x4566), 10);
     assert.equal(trie.get(0x4567), 99);
     assert.equal(trie.get(-1), 666);
     assert.equal(trie.get(0x110000), 666);
@@ -102,6 +103,7 @@ describe("unicode trie", () => {
   it("should take a Uint8Array as serialization", () => {
     const t = new UnicodeTrieBuilder("XX", "YY");
     t.setRange(13, 6666, "ZZ");
+    assert.equal(t.getString(13), "ZZ");
 
     const buf = t.toBuffer();
     const ubuf = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
@@ -121,9 +123,6 @@ describe("unicode trie", () => {
 
   it("handles out of memory errors", () => {
     const t = new UnicodeTrieBuilder(1);
-    const SMALL = 1 << 8;
-    t.data = new Uint32Array(SMALL);
-    t.dataCapacity = SMALL;
     for (let i = 0; i < 0x110000; i++) {
       t.set(i, 2);
     }
