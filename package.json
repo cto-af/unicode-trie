@@ -1,6 +1,6 @@
 {
   "name": "@cto.af/unicode-trie",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Quick fork of unicode-trie for modernity",
   "main": "index.js",
   "type": "module",
