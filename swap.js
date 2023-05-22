@@ -1,7 +1,11 @@
 const isBigEndian
   = (new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x12);
 
-// Export for testing
+/**
+ * Exported for testing
+ * @param {Uint8Array} array
+ * @private
+ */
 export function swap32(array) {
   const len = array.length;
   for (let i = 0; i < len; i += 4) {
@@ -10,7 +14,13 @@ export function swap32(array) {
   }
 }
 
-function noOp() {
+/**
+ * No-op.
+ *
+ * @param {Uint8Array} _array Ingored
+ * @private
+ */
+function noOp(_array) {
   // Intentionally empty
 }
 
