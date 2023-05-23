@@ -128,7 +128,7 @@ export class UnicodeTrie {
    * error value if codePoint is out of range.
    *
    * @param {number} codePoint
-   * @returns {number|string}
+   * @returns {number}
    */
   get(codePoint) {
     let val = this.errorValue;
@@ -165,6 +165,17 @@ export class UnicodeTrie {
       val = this.data[this.data.length - DATA_GRANULARITY];
     }
 
+    return val;
+  }
+
+  /**
+   * Get the value associated with the codePoint, stringified if possible.
+   *
+   * @param {number} codePoint
+   * @returns {number|string}
+   */
+  getString(codePoint) {
+    const val = this.get(codePoint);
     return this.values[val] ?? val;
   }
 }

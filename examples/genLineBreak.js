@@ -24,16 +24,25 @@ t.setRange(0x1F000, 0x1FAFF, "ID");
 t.setRange(0x1FC00, 0x1FFFD, "ID");
 t.setRange(0x20A0, 0x20CF, "PR");
 
+let ranges = 0;
+let single = 0;
+let total = 0;
 for (const line of txt.split("\n")) {
   // The format is two fields separated by a semicolon.
   // Field 0: Unicode code point value or range of code point values
   // Field 1: Line_Break property, a two-character string
-  const m = line.match(/^([0-9A-F]{4})(?:\.\.([0-9A-F]{4}))?;(\S+)/i);
+  const m = line.match(/^([0-9A-F]{4,6})(?:\.\.([0-9A-F]{4,6}))?;(\S+)/i);
   if (m) {
     if (m[2]) {
-      t.setRange(parseInt(m[1], 16), parseInt(m[2], 16), m[3]);
+      const start = parseInt(m[1], 16);
+      const end = parseInt(m[2], 16);
+      t.setRange(start, end, m[3]);
+      ranges++;
+      total += (end - start + 1);
     } else {
       t.set(parseInt(m[1], 16), m[3]);
+      single++;
+      total++;
     }
   }
 }
@@ -41,6 +50,8 @@ for (const line of txt.split("\n")) {
 const buf = t.toBuffer();
 
 await fs.writeFile("lineBreak.js", `\
-import { UnicodeTrie } from "../index.js"
+import { UnicodeTrie } from "../index.js";
 export const LineBreak = new UnicodeTrie(Buffer.from("${buf.toString("base64")}", "base64"));
 `);
+
+console.log(`Ranges: ${ranges}\nSingle: ${single}\nTotal: ${total}`);
