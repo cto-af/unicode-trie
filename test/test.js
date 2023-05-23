@@ -92,7 +92,7 @@ describe("unicode trie", () => {
     const buf = t.toBuffer();
     const trie = new UnicodeTrie(buf);
     assert.equal(trie.get(12), 10);
-    assert.equal(trie.get(13), 7788);
+    assert.equal(trie.getString(13), 7788);
     assert.equal(trie.get(5999), 7788);
     assert.equal(trie.get(6000), 9900);
     assert.equal(trie.get(7000), 9900);
@@ -108,9 +108,9 @@ describe("unicode trie", () => {
     const buf = t.toBuffer();
     const ubuf = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
     const trie = new UnicodeTrie(ubuf);
-    assert.equal(trie.get(12), "XX");
-    assert.equal(trie.get(13), "ZZ");
-    assert.equal(trie.get(0x110000), "YY");
+    assert.equal(trie.getString(12), "XX");
+    assert.equal(trie.getString(13), "ZZ");
+    assert.equal(trie.getString(0x110000), "YY");
   });
 
   it("should handle the old format without string map", () => {

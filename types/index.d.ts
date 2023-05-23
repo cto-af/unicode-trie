@@ -32,7 +32,14 @@ export class UnicodeTrie {
      * error value if codePoint is out of range.
      *
      * @param {number} codePoint
+     * @returns {number}
+     */
+    get(codePoint: number): number;
+    /**
+     * Get the value associated with the codePoint, stringified if possible.
+     *
+     * @param {number} codePoint
      * @returns {number|string}
      */
-    get(codePoint: number): number | string;
+    getString(codePoint: number): number | string;
 }
