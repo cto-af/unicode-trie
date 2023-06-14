@@ -294,4 +294,12 @@ describe("unicode trie", () => {
       }));
     }
   });
+
+  it("generates a module", () => {
+    const trie = new UnicodeTrieBuilder(0, 99);
+    let m = trie.toModule();
+    assert.match(m, /export const Trie/);
+    m = trie.toModule({ version: "1.0.0", date: 1, name: "Foo", quot: "'", semi: "" });
+    assert.match(m, /export const Foo/);
+  });
 });

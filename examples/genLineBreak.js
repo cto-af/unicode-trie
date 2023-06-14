@@ -47,11 +47,6 @@ for (const line of txt.split("\n")) {
   }
 }
 
-const buf = t.toBuffer();
-
-await fs.writeFile("lineBreak.js", `\
-import { UnicodeTrie } from "../index.js";
-export const LineBreak = new UnicodeTrie(Buffer.from("${buf.toString("base64")}", "base64"));
-`);
+await fs.writeFile("lineBreak.js", t.toModule({ name: "LineBreak", pkg: "../index.js" }));
 
 console.log(`Ranges: ${ranges}\nSingle: ${single}\nTotal: ${total}`);
