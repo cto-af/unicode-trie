@@ -3,5 +3,6 @@
 import { LineBreak } from "./lineBreak.js";
 
 for (const num of process.argv.slice(2)) {
-  console.log(LineBreak.get(parseInt(num, 16)));
+  const n = parseInt(num, 16);
+  console.log(`U+${n.toString(16).padStart(4, "0")}:`, LineBreak.getString(n));
 }

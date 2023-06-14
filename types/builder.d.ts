@@ -78,6 +78,56 @@ export class UnicodeTrieBuilder {
      * @returns {Buffer}
      */
     toBuffer(): Buffer;
+    /**
+     * @typedef {object} ModuleOptions
+     * @prop {string=} [version] Version of the source file, usually the Unicode
+     *   version.
+     * @prop {string=} [date] Date the source file was created.  Can be parsed
+     *   from most UCD files.
+     * @prop {string} [name="Trie"] Name exported from the module with the Trie
+     *   instance.
+     * @prop {string} [quot='"'] Quote.  Should be single or double.
+     * @prop {string} [semi=";"] Include semicolons? Pass in "" to disable.
+     * @prop {string} [pkg="@cto.af/unicode-trie"] Package name for this
+     *   package.  Mostly useful for internal tooling.
+     */
+    /**
+     * Create a string version of a JS module that will reconstitute this trie.
+     * Suitable for saving to a .mjs file.
+     *
+     * @param {ModuleOptions} [opts={}]
+     * @returns {string}
+     */
+    toModule(opts?: {
+        /**
+         * Version of the source file, usually the Unicode
+         * version.
+         */
+        version?: string | undefined;
+        /**
+         * Date the source file was created.  Can be parsed
+         * from most UCD files.
+         */
+        date?: string | undefined;
+        /**
+         * Name exported from the module with the Trie
+         * instance.
+         */
+        name?: string | undefined;
+        /**
+         * Quote.  Should be single or double.
+         */
+        quot?: string | undefined;
+        /**
+         * Include semicolons? Pass in "" to disable.
+         */
+        semi?: string | undefined;
+        /**
+         * Package name for this
+         * package.  Mostly useful for internal tooling.
+         */
+        pkg?: string | undefined;
+    } | undefined): string;
     #private;
 }
 import { UnicodeTrie } from "./index.js";

@@ -1164,4 +1164,59 @@ export class UnicodeTrieBuilder {
 
     return buf;
   }
+
+  /**
+   * @typedef {object} ModuleOptions
+   * @prop {string=} [version] Version of the source file, usually the Unicode
+   *   version.
+   * @prop {string=} [date] Date the source file was created.  Can be parsed
+   *   from most UCD files.
+   * @prop {string} [name="Trie"] Name exported from the module with the Trie
+   *   instance.
+   * @prop {string} [quot='"'] Quote.  Should be single or double.
+   * @prop {string} [semi=";"] Include semicolons? Pass in "" to disable.
+   * @prop {string} [pkg="@cto.af/unicode-trie"] Package name for this
+   *   package.  Mostly useful for internal tooling.
+   */
+
+  /**
+   * Create a string version of a JS module that will reconstitute this trie.
+   * Suitable for saving to a .mjs file.
+   *
+   * @param {ModuleOptions} [opts={}]
+   * @returns {string}
+   */
+  toModule(opts = {}) {
+    const { name, quot: q, semi: s, version, date, pkg } = {
+      name: "Trie",
+      quot: '"',
+      semi: ";",
+      pkg: "@cto.af/unicode-trie",
+      ...opts,
+    };
+    const buf = this.toBuffer();
+    let ret = `import { Buffer } from ${q}buffer${q}${s}\n`;
+    ret += `import { UnicodeTrie } from ${q}${pkg}${q}${s}\n\n`;
+    if (version) {
+      ret += `export const version = ${q}${version}${q}${s}\n`;
+    }
+    if (date) {
+      ret += `export const inputFileDate = new Date(${q}${new Date(date).toISOString()}${q})${s}\n`;
+    }
+    ret += `\
+export const generatedDate = new Date(${q}${new Date().toISOString()}${q})${s}
+export const ${name} = new UnicodeTrie(Buffer.from(
+  \`${buf.toString("base64").split(/(.{72})/).filter(x => x).join("\n   ")}\`,
+  ${q}base64${q}
+))${s}
+/**
+ * @type {Record<string, number>}
+ */
+export const names = Object.fromEntries(
+  ${name}.values.map((v, i) => [v, i])
+)${s}
+export const values = ${name}.values${s}
+`;
+    return ret;
+  }
 }
