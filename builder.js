@@ -1,66 +1,33 @@
 /* eslint-disable max-params */
+import {
+  DATA_BLOCK_LENGTH,
+  DATA_GRANULARITY,
+  DATA_MASK,
+  INDEX_1_OFFSET,
+  INDEX_2_BLOCK_LENGTH,
+  INDEX_2_BMP_LENGTH,
+  INDEX_2_MASK,
+  INDEX_SHIFT,
+  LSCP_INDEX_2_LENGTH,
+  LSCP_INDEX_2_OFFSET,
+  MAX_INDEX_1_LENGTH,
+  OMITTED_BMP_INDEX_1_LENGTH,
+  SHIFT_1,
+  SHIFT_1_2,
+  SHIFT_2,
+  UTF8_2B_INDEX_2_LENGTH,
+} from './constants.js';
 import {Buffer} from 'buffer';
 import {UnicodeTrie} from './index.js';
 import {brotliCompressSync} from 'zlib';
 import {swap32LE} from './swap.js';
 
-// Shift size for getting the index-1 table offset.
-const SHIFT_1 = 6 + 5;
-
-// Shift size for getting the index-2 table offset.
-const SHIFT_2 = 5;
-
-// Difference between the two shift sizes,
-// for getting an index-1 offset from an index-2 offset. 6=11-5
-const SHIFT_1_2 = SHIFT_1 - SHIFT_2;
-
-// Number of index-1 entries for the BMP. 32=0x20
-// This part of the index-1 table is omitted from the serialized form.
-const OMITTED_BMP_INDEX_1_LENGTH = 0x10000 >> SHIFT_1;
-
 // Number of code points per index-1 table entry. 2048=0x800
 const CP_PER_INDEX_1_ENTRY = 1 << SHIFT_1;
-
-// Number of entries in an index-2 block. 64=0x40
-const INDEX_2_BLOCK_LENGTH = 1 << SHIFT_1_2;
-
-// Mask for getting the lower bits for the in-index-2-block offset. */
-const INDEX_2_MASK = INDEX_2_BLOCK_LENGTH - 1;
-
-// Number of entries in a data block. 32=0x20
-const DATA_BLOCK_LENGTH = 1 << SHIFT_2;
-
-// Mask for getting the lower bits for the in-data-block offset.
-const DATA_MASK = DATA_BLOCK_LENGTH - 1;
-
-// Shift size for shifting left the index array values.
-// Increases possible data size with 16-bit index values at the cost
-// of compactability.
-// This requires data blocks to be aligned by DATA_GRANULARITY.
-const INDEX_SHIFT = 2;
-
-// The alignment size of a data block. Also the granularity for compaction.
-const DATA_GRANULARITY = 1 << INDEX_SHIFT;
 
 // The BMP part of the index-2 table is fixed and linear and starts at offset 0.
 // Length=2048=0x800=0x10000>>SHIFT_2.
 const INDEX_2_OFFSET = 0;
-
-// The part of the index-2 table for U+D800..U+DBFF stores values for lead
-// surrogate code _units_ not code _points_. Values for lead surrogate code
-// _points_ are indexed with this portion of the table.
-// Length=32=0x20=0x400>>SHIFT_2. (There are 1024=0x400 lead surrogates.)
-const LSCP_INDEX_2_OFFSET = 0x10000 >> SHIFT_2;
-const LSCP_INDEX_2_LENGTH = 0x400 >> SHIFT_2;
-
-// Count the lengths of both BMP pieces. 2080=0x820
-const INDEX_2_BMP_LENGTH = LSCP_INDEX_2_OFFSET + LSCP_INDEX_2_LENGTH;
-
-// The 2-byte UTF-8 version of the index-2 table follows at offset 2080=0x820.
-// Length 32=0x20 for lead bytes C0..DF, regardless of SHIFT_2.
-const UTF8_2B_INDEX_2_OFFSET = INDEX_2_BMP_LENGTH;
-// U+0800 is the first code point after 2-byte UTF-8
-const UTF8_2B_INDEX_2_LENGTH = 0x800 >> 6;
 
 // The index-1 table, only used for supplementary code points, at offset
 // 2112=0x840. Variable length, for code points up to highStart, where the
@@ -72,8 +39,6 @@ const UTF8_2B_INDEX_2_LENGTH = 0x800 >> 6;
 //
 // Both the index-1 table and the following part of the index-2 table are
 // omitted completely if there is only BMP data.
-const INDEX_1_OFFSET = UTF8_2B_INDEX_2_OFFSET + UTF8_2B_INDEX_2_LENGTH;
-const MAX_INDEX_1_LENGTH = 0x100000 >> SHIFT_1;
 
 // The illegal-UTF-8 data block follows the ASCII block, at offset 128=0x80.
 // Used with linear access for single bytes 0..0xbf for simple error handling.
