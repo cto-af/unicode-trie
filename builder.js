@@ -1,76 +1,44 @@
-import { UnicodeTrie } from "./index.js";
-import { brotliCompressSync } from "zlib";
-import { swap32LE } from "./swap.js";
-
-// Shift size for getting the index-1 table offset.
-const SHIFT_1 = 6 + 5;
-
-// Shift size for getting the index-2 table offset.
-const SHIFT_2 = 5;
-
-// Difference between the two shift sizes,
-// for getting an index-1 offset from an index-2 offset. 6=11-5
-const SHIFT_1_2 = SHIFT_1 - SHIFT_2;
-
-// Number of index-1 entries for the BMP. 32=0x20
-// This part of the index-1 table is omitted from the serialized form.
-const OMITTED_BMP_INDEX_1_LENGTH = 0x10000 >> SHIFT_1;
+/* eslint-disable max-params */
+import {
+  DATA_BLOCK_LENGTH,
+  DATA_GRANULARITY,
+  DATA_MASK,
+  INDEX_1_OFFSET,
+  INDEX_2_BLOCK_LENGTH,
+  INDEX_2_BMP_LENGTH,
+  INDEX_2_MASK,
+  INDEX_SHIFT,
+  LSCP_INDEX_2_LENGTH,
+  LSCP_INDEX_2_OFFSET,
+  MAX_INDEX_1_LENGTH,
+  OMITTED_BMP_INDEX_1_LENGTH,
+  SHIFT_1,
+  SHIFT_1_2,
+  SHIFT_2,
+  UTF8_2B_INDEX_2_LENGTH,
+} from './constants.js';
+import {Buffer} from 'buffer';
+import {UnicodeTrie} from './index.js';
+import {brotliCompressSync} from 'zlib';
+import {swap32LE} from './swap.js';
 
 // Number of code points per index-1 table entry. 2048=0x800
 const CP_PER_INDEX_1_ENTRY = 1 << SHIFT_1;
-
-// Number of entries in an index-2 block. 64=0x40
-const INDEX_2_BLOCK_LENGTH = 1 << SHIFT_1_2;
-
-// Mask for getting the lower bits for the in-index-2-block offset. */
-const INDEX_2_MASK = INDEX_2_BLOCK_LENGTH - 1;
-
-// Number of entries in a data block. 32=0x20
-const DATA_BLOCK_LENGTH = 1 << SHIFT_2;
-
-// Mask for getting the lower bits for the in-data-block offset.
-const DATA_MASK = DATA_BLOCK_LENGTH - 1;
-
-// Shift size for shifting left the index array values.
-// Increases possible data size with 16-bit index values at the cost
-// of compactability.
-// This requires data blocks to be aligned by DATA_GRANULARITY.
-const INDEX_SHIFT = 2;
-
-// The alignment size of a data block. Also the granularity for compaction.
-const DATA_GRANULARITY = 1 << INDEX_SHIFT;
 
 // The BMP part of the index-2 table is fixed and linear and starts at offset 0.
 // Length=2048=0x800=0x10000>>SHIFT_2.
 const INDEX_2_OFFSET = 0;
 
-// The part of the index-2 table for U+D800..U+DBFF stores values for
-// lead surrogate code _units_ not code _points_.
-// Values for lead surrogate code _points_ are indexed with this portion of the table.
-// Length=32=0x20=0x400>>SHIFT_2. (There are 1024=0x400 lead surrogates.)
-const LSCP_INDEX_2_OFFSET = 0x10000 >> SHIFT_2;
-const LSCP_INDEX_2_LENGTH = 0x400 >> SHIFT_2;
-
-// Count the lengths of both BMP pieces. 2080=0x820
-const INDEX_2_BMP_LENGTH = LSCP_INDEX_2_OFFSET + LSCP_INDEX_2_LENGTH;
-
-// The 2-byte UTF-8 version of the index-2 table follows at offset 2080=0x820.
-// Length 32=0x20 for lead bytes C0..DF, regardless of SHIFT_2.
-const UTF8_2B_INDEX_2_OFFSET = INDEX_2_BMP_LENGTH;
-const UTF8_2B_INDEX_2_LENGTH = 0x800 >> 6;  // U+0800 is the first code point after 2-byte UTF-8
-
-// The index-1 table, only used for supplementary code points, at offset 2112=0x840.
-// Variable length, for code points up to highStart, where the last single-value range starts.
-// Maximum length 512=0x200=0x100000>>SHIFT_1.
+// The index-1 table, only used for supplementary code points, at offset
+// 2112=0x840. Variable length, for code points up to highStart, where the
+// last single-value range starts. Maximum length 512=0x200=0x100000>>SHIFT_1.
 // (For 0x100000 supplementary code points U+10000..U+10ffff.)
 //
-// The part of the index-2 table for supplementary code points starts
-// after this index-1 table.
+// The part of the index-2 table for supplementary code points starts after
+// this index-1 table.
 //
-// Both the index-1 table and the following part of the index-2 table
-// are omitted completely if there is only BMP data.
-const INDEX_1_OFFSET = UTF8_2B_INDEX_2_OFFSET + UTF8_2B_INDEX_2_LENGTH;
-const MAX_INDEX_1_LENGTH = 0x100000 >> SHIFT_1;
+// Both the index-1 table and the following part of the index-2 table are
+// omitted completely if there is only BMP data.
 
 // The illegal-UTF-8 data block follows the ASCII block, at offset 128=0x80.
 // Used with linear access for single bytes 0..0xbf for simple error handling.
@@ -108,9 +76,9 @@ const MAX_DATA_LENGTH_RUNTIME = 0xffff << INDEX_SHIFT;
 
 const INDEX_1_LENGTH = 0x110000 >> SHIFT_1;
 
-// Maximum length of the build-time data array.
-// One entry per 0x110000 code points, plus the illegal-UTF-8 block and the null block,
-// plus values for the 0x400 surrogate code units.
+// Maximum length of the build-time data array. One entry per 0x110000 code
+// points, plus the illegal-UTF-8 block and the null block, plus values for
+// the 0x400 surrogate code units.
 const MAX_DATA_LENGTH_BUILDTIME = 0x110000 + 0x40 + 0x40 + 0x400;
 
 // At build time, leave a gap in the index-2 table,
@@ -118,20 +86,20 @@ const MAX_DATA_LENGTH_BUILDTIME = 0x110000 + 0x40 + 0x40 + 0x400;
 // and the supplementary index-1 table.
 // Round up to INDEX_2_BLOCK_LENGTH for proper compacting.
 const INDEX_GAP_OFFSET = INDEX_2_BMP_LENGTH;
-const INDEX_GAP_LENGTH
-  = ((UTF8_2B_INDEX_2_LENGTH + MAX_INDEX_1_LENGTH) + INDEX_2_MASK)
-    & ~INDEX_2_MASK;
+const INDEX_GAP_LENGTH =
+  ((UTF8_2B_INDEX_2_LENGTH + MAX_INDEX_1_LENGTH) + INDEX_2_MASK) &
+    ~INDEX_2_MASK;
 
 // Maximum length of the build-time index-2 array.
 // Maximum number of Unicode code points (0x110000) shifted right by SHIFT_2,
 // plus the part of the index-2 table for lead surrogate code points,
 // plus the build-time index gap,
 // plus the null index-2 block.)
-const MAX_INDEX_2_LENGTH
-  = (0x110000 >> SHIFT_2)
-    + LSCP_INDEX_2_LENGTH
-    + INDEX_GAP_LENGTH
-    + INDEX_2_BLOCK_LENGTH;
+const MAX_INDEX_2_LENGTH =
+  (0x110000 >> SHIFT_2) +
+    LSCP_INDEX_2_LENGTH +
+    INDEX_GAP_LENGTH +
+    INDEX_2_BLOCK_LENGTH;
 
 // The null index-2 block, following the gap in the index-2 table.
 const INDEX_2_NULL_OFFSET = INDEX_GAP_OFFSET + INDEX_GAP_LENGTH;
@@ -139,9 +107,9 @@ const INDEX_2_NULL_OFFSET = INDEX_GAP_OFFSET + INDEX_GAP_LENGTH;
 // The start of allocated index-2 blocks.
 const INDEX_2_START_OFFSET = INDEX_2_NULL_OFFSET + INDEX_2_BLOCK_LENGTH;
 
-// Maximum length of the runtime index array.
-// Limited by its own 16-bit index values, and by uint16_t UTrie2Header.indexLength.
-// (The actual maximum length is lower,
+// Maximum length of the runtime index array. Limited by its own 16-bit index
+// values, and by uint16_t UTrie2Header.indexLength. (The actual maximum
+// length is lower,
 // (0x110000>>SHIFT_2)+UTF8_2B_INDEX_2_LENGTH+MAX_INDEX_1_LENGTH.)
 const MAX_INDEX_LENGTH = 0xffff;
 
@@ -171,7 +139,8 @@ export class UnicodeTrieBuilder {
    *
    * @param {number|string} initialValue Default value if none other specified.
    * @param {number|string} errorValue Error value for out of range inputs.
-   * @param {string[]} [values=[]] Initial set of strings that are mapped to numbers.
+   * @param {string[]} [values=[]] Initial set of strings that are mapped to
+   *   numbers.
    */
   constructor(initialValue, errorValue, values = []) {
     this.values = values;
@@ -239,12 +208,12 @@ export class UnicodeTrieBuilder {
       this.map[i++] = 0;
     }
 
-    // Reference counts for the null data block: all blocks except for the ASCII blocks.
-    // Plus 1 so that we don't drop this block during compaction.
-    // Plus as many as needed for lead surrogate code points.
+    // Reference counts for the null data block: all blocks except for the
+    // ASCII blocks. Plus 1 so that we don't drop this block during
+    // compaction. Plus as many as needed for lead surrogate code points.
     // i==newTrie->dataNullOffset
-    this.map[i++]
-      = ((0x110000 >> SHIFT_2) - (0x80 >> SHIFT_2)) + 1 + LSCP_INDEX_2_LENGTH;
+    this.map[i++] =
+      ((0x110000 >> SHIFT_2) - (0x80 >> SHIFT_2)) + 1 + LSCP_INDEX_2_LENGTH;
     j += DATA_BLOCK_LENGTH;
     for (; j < NEW_DATA_START_OFFSET; j += DATA_BLOCK_LENGTH) {
       this.map[i++] = 0;
@@ -297,7 +266,7 @@ export class UnicodeTrieBuilder {
    * @returns {number}
    */
   #internString(value) {
-    if (typeof value !== "number") {
+    if (typeof value !== 'number') {
       let v = this.valueMap[value];
       if (v == null) {
         v = this.values.push(value) - 1;
@@ -317,11 +286,11 @@ export class UnicodeTrieBuilder {
    */
   set(codePoint, value) {
     if ((codePoint < 0) || (codePoint > 0x10ffff)) {
-      throw new Error("Invalid code point");
+      throw new Error('Invalid code point');
     }
 
     if (this.isCompacted) {
-      throw new Error("Already compacted");
+      throw new Error('Already compacted');
     }
 
     value = this.#internString(value);
@@ -343,17 +312,17 @@ export class UnicodeTrieBuilder {
     if (overwrite == null) {
       overwrite = true;
     }
-    if ((start < 0)
-      || (start > 0x10ffff)
-      || (end < 0)
-      || (end > 0x10ffff)
-      || (start > end)
+    if ((start < 0) ||
+      (start > 0x10ffff) ||
+      (end < 0) ||
+      (end > 0x10ffff) ||
+      (start > end)
     ) {
-      throw new Error("Invalid code point");
+      throw new Error('Invalid code point');
     }
 
     if (this.isCompacted) {
-      throw new Error("Already compacted");
+      throw new Error('Already compacted');
     }
 
     if (!overwrite && (value === this.initialValue)) {
@@ -437,23 +406,26 @@ export class UnicodeTrieBuilder {
           );
         }
       } else if (
-        (this.data[block] !== value)
-        && (overwrite || (block === this.dataNullOffset))
+        (this.data[block] !== value) &&
+        (overwrite || (block === this.dataNullOffset))
       ) {
-        // Set the repeatBlock instead of the null block or previous repeat block:
+        // Set the repeatBlock instead of the null block or previous repeat
+        // block:
         //
-        // If !isWritableBlock() then all entries in the block have the same value
-        // because it's the null block or a range block (the repeatBlock from a previous
-        // call to utrie2_setRange32()).
-        // No other blocks are used multiple times before compacting.
+        // If !isWritableBlock() then all entries in the block have the same
+        // value because it's the null block or a range block (the repeatBlock
+        // from a previous call to utrie2_setRange32()). No other blocks are
+        // used multiple times before compacting.
         //
-        // The null block is the only non-writable block with the initialValue because
-        // of the repeatBlock initialization above. (If value==initialValue, then
-        // the repeatBlock will be the null data block.)
+        // The null block is the only non-writable block with the initialValue
+        // because of the repeatBlock initialization above. (If
+        // value==initialValue, then the repeatBlock will be the null data
+        // block.)
         //
-        // We set our repeatBlock if the desired value differs from the block's value,
-        // and if we overwrite any data or if the data is all initial values
-        // (which is the same as the block being the null block, see above).
+        // We set our repeatBlock if the desired value differs from the
+        // block's value, and if we overwrite any data or if the data is all
+        // initial values (which is the same as the block being the null
+        // block, see above).
         setRepeatBlock = true;
       }
 
@@ -492,8 +464,8 @@ export class UnicodeTrieBuilder {
     }
 
     if (
-      (c >= this.highStart)
-      && (!((c >= 0xd800) && (c < 0xdc00)) || fromLSCP)
+      (c >= this.highStart) &&
+      (!((c >= 0xd800) && (c < 0xdc00)) || fromLSCP)
     ) {
       return this.data[this.dataLength - DATA_GRANULARITY];
     }
@@ -547,7 +519,7 @@ export class UnicodeTrieBuilder {
       // Should never occur.
       // Either MAX_BUILD_TIME_INDEX_LENGTH is incorrect,
       // or the code writes more values than should be possible.
-      throw new Error("Internal error in Trie2 creation.");
+      throw new Error('Internal error in Trie2 creation.');
     }
 
     this.index2Length = newTop;
@@ -587,8 +559,8 @@ export class UnicodeTrieBuilder {
    * @returns {boolean}
    */
   #isWritableBlock(block) {
-    return (block !== this.dataNullOffset)
-      && (this.map[block >> SHIFT_2] === 1);
+    return (block !== this.dataNullOffset) &&
+      (this.map[block >> SHIFT_2] === 1);
   }
 
   /**
@@ -597,11 +569,7 @@ export class UnicodeTrieBuilder {
    */
   #allocDataBlock(copyBlock) {
     let newBlock = 0;
-    if (this.firstFreeBlock !== 0) {
-      // Get the first free block
-      newBlock = this.firstFreeBlock;
-      this.firstFreeBlock = -this.map[newBlock >> SHIFT_2];
-    } else {
+    if (this.firstFreeBlock === 0) {
       // Get a new block from the high end
       newBlock = this.dataLength;
       const newTop = newBlock + DATA_BLOCK_LENGTH;
@@ -616,7 +584,7 @@ export class UnicodeTrieBuilder {
           // Should never occur.
           // Either MAX_DATA_LENGTH_BUILDTIME is incorrect,
           // or the code writes more values than should be possible.
-          throw new Error("Internal error in Trie2 creation.");
+          throw new Error('Internal error in Trie2 creation.');
         }
 
         const newData = new Uint32Array(capacity);
@@ -624,8 +592,11 @@ export class UnicodeTrieBuilder {
         this.data = newData;
         this.dataCapacity = capacity;
       }
-
       this.dataLength = newTop;
+    } else {
+      // Get the first free block
+      newBlock = this.firstFreeBlock;
+      this.firstFreeBlock = -this.map[newBlock >> SHIFT_2];
     }
 
     this.data.set(
@@ -650,7 +621,7 @@ export class UnicodeTrieBuilder {
    * @param {number} block
    */
   #setIndex2Entry(i2, block) {
-    ++this.map[block >> SHIFT_2];  // Increment first, in case block == oldBlock!
+    ++this.map[block >> SHIFT_2]; // Increment first, in case block == oldBlock!
     const oldBlock = this.index2[i2];
     if (--this.map[oldBlock >> SHIFT_2] === 0) {
       this.#releaseDataBlock(oldBlock);
@@ -721,8 +692,8 @@ export class UnicodeTrieBuilder {
     let prevBlock = 0;
     let prevI2Block = 0;
     const data32 = this.data;
-    const { initialValue } = this;
-    const { index2NullOffset } = this;
+    const {initialValue} = this;
+    const {index2NullOffset} = this;
     const nullBlock = this.dataNullOffset;
 
     // Set variables for previous range
@@ -742,7 +713,8 @@ export class UnicodeTrieBuilder {
     while (c > 0) {
       const i2Block = this.index1[--i1];
       if (i2Block === prevI2Block) {
-        // The index-2 block is the same as the previous one, and filled with highValue
+        // The index-2 block is the same as the previous one, and filled with
+        // highValue
         c -= CP_PER_INDEX_1_ENTRY;
         continue;
       }
@@ -760,7 +732,8 @@ export class UnicodeTrieBuilder {
         while (i2 > 0) {
           const block = this.index2[i2Block + --i2];
           if (block === prevBlock) {
-            // The block is the same as the previous one, and filled with highValue
+            // The block is the same as the previous one, and filled with
+            // highValue
             c -= DATA_BLOCK_LENGTH;
             continue;
           }
@@ -865,7 +838,8 @@ export class UnicodeTrieBuilder {
       let movedStart = this.#findSameDataBlock(newStart, start, blockLength);
       let mapIndex = 0;
       if (movedStart >= 0) {
-        // Found an identical block, set the other block's index value for the current block
+        // Found an identical block, set the other block's index value for the
+        // current block
         mapIndex = start >> SHIFT_2;
         for (i = blockCount; i > 0; i--) {
           this.map[mapIndex++] = movedStart;
@@ -879,12 +853,13 @@ export class UnicodeTrieBuilder {
         continue;
       }
 
-      // See if the beginning of this block can be overlapped with the end of the previous block
-      // look for maximum overlap (modulo granularity) with the previous, adjacent block
+      // See if the beginning of this block can be overlapped with the end of
+      // the previous block look for maximum overlap (modulo granularity) with
+      // the previous, adjacent block
       let overlap = blockLength - DATA_GRANULARITY;
       while (
-        (overlap > 0)
-          && !equal_int(this.data, (newStart - overlap), start, overlap)
+        (overlap > 0) &&
+          !equal_int(this.data, (newStart - overlap), start, overlap)
       ) {
         overlap -= DATA_GRANULARITY;
       }
@@ -947,8 +922,8 @@ export class UnicodeTrieBuilder {
     }
 
     // Reduce the index table gap to what will be needed at runtime.
-    newStart += UTF8_2B_INDEX_2_LENGTH
-      + ((this.highStart - 0x10000) >> SHIFT_1);
+    newStart += UTF8_2B_INDEX_2_LENGTH +
+      ((this.highStart - 0x10000) >> SHIFT_1);
     start = INDEX_2_NULL_OFFSET;
     while (start < this.index2Length) {
       // Start: index of first entry of current block
@@ -958,7 +933,8 @@ export class UnicodeTrieBuilder {
       // search for an identical block
       const movedStart = this.#findSameIndex2Block(newStart, start);
       if (movedStart >= 0) {
-        // Found an identical block, set the other block's index value for the current block
+        // Found an identical block, set the other block's index value for the
+        // current block
         this.map[start >> SHIFT_1_2] = movedStart;
 
         // Advance start to the next block
@@ -968,12 +944,13 @@ export class UnicodeTrieBuilder {
         continue;
       }
 
-      // See if the beginning of this block can be overlapped with the end of the previous block
-      // look for maximum overlap with the previous, adjacent block
+      // See if the beginning of this block can be overlapped with the end of
+      // the previous block look for maximum overlap with the previous,
+      // adjacent block
       let overlap = INDEX_2_BLOCK_LENGTH - 1;
       while (
-        (overlap > 0)
-          && !equal_int(this.index2, (newStart - overlap), start, overlap)
+        (overlap > 0) &&
+          !equal_int(this.index2, (newStart - overlap), start, overlap)
       ) {
         --overlap;
       }
@@ -1018,8 +995,8 @@ export class UnicodeTrieBuilder {
     // Find highStart and round it up
     let highValue = this.get(0x10ffff);
     let highStart = this.#findHighStart(highValue);
-    highStart
-      = (highStart + (CP_PER_INDEX_1_ENTRY - 1)) & ~(CP_PER_INDEX_1_ENTRY - 1);
+    highStart =
+      (highStart + (CP_PER_INDEX_1_ENTRY - 1)) & ~(CP_PER_INDEX_1_ENTRY - 1);
     if (highStart === 0x110000) {
       highValue = this.errorValue;
     }
@@ -1029,8 +1006,8 @@ export class UnicodeTrieBuilder {
     this.highStart = highStart;
     if (this.highStart < 0x110000) {
       // Blank out [highStart..10ffff] to release associated data blocks.
-      const suppHighStart
-        = this.highStart <= 0x10000 ? 0x10000 : this.highStart;
+      const suppHighStart =
+        this.highStart <= 0x10000 ? 0x10000 : this.highStart;
       this.setRange(suppHighStart, 0x10ffff, this.initialValue, true);
     }
 
@@ -1060,25 +1037,31 @@ export class UnicodeTrieBuilder {
       this.#compact();
     }
 
-    const allIndexesLength = (this.highStart <= 0x10000)
-      ? INDEX_1_OFFSET
-      : this.index2Length;
+    const allIndexesLength = (this.highStart <= 0x10000) ?
+      INDEX_1_OFFSET :
+      this.index2Length;
 
     const dataMove = allIndexesLength;
 
     // Are indexLength and dataLength within limits?
-    if ((allIndexesLength > MAX_INDEX_LENGTH) // For unshifted indexLength
-      || ((dataMove + this.dataNullOffset) > 0xffff) // For unshifted dataNullOffset
-      || ((dataMove + DATA_0800_OFFSET) > 0xffff) // For unshifted 2-byte UTF-8 index-2 values
-      || ((dataMove + this.dataLength) > MAX_DATA_LENGTH_RUNTIME)) { // For shiftedDataLength
-      throw new Error("Trie data is too large.");
+
+    // For unshifted indexLength
+    if ((allIndexesLength > MAX_INDEX_LENGTH) ||
+      // For unshifted dataNullOffset
+      ((dataMove + this.dataNullOffset) > 0xffff) ||
+      // For unshifted 2-byte UTF-8 index-2 values
+      ((dataMove + DATA_0800_OFFSET) > 0xffff) ||
+      // For shiftedDataLength
+      ((dataMove + this.dataLength) > MAX_DATA_LENGTH_RUNTIME)) {
+      throw new Error('Trie data is too large.');
     }
 
     // Calculate the sizes of, and allocate, the index and data arrays
     const indexLength = allIndexesLength + this.dataLength;
     const data = new Int32Array(indexLength);
 
-    // Write the index-2 array values shifted right by INDEX_SHIFT, after adding dataMove
+    // Write the index-2 array values shifted right by INDEX_SHIFT, after
+    // adding dataMove
     let destIdx = 0;
     let i = 0;
     for (i = 0; i < INDEX_2_BMP_LENGTH; i++) {
@@ -1096,20 +1079,20 @@ export class UnicodeTrieBuilder {
 
     if (this.highStart > 0x10000) {
       const index1Length = (this.highStart - 0x10000) >> SHIFT_1;
-      const index2Offset
-        = INDEX_2_BMP_LENGTH + UTF8_2B_INDEX_2_LENGTH + index1Length;
+      const index2Offset =
+        INDEX_2_BMP_LENGTH + UTF8_2B_INDEX_2_LENGTH + index1Length;
 
       // Write 16-bit index-1 values for supplementary code points
       for (i = 0; i < index1Length; i++) {
-        data[destIdx++]
-          = (INDEX_2_OFFSET + this.index1[i + OMITTED_BMP_INDEX_1_LENGTH]);
+        data[destIdx++] =
+          (INDEX_2_OFFSET + this.index1[i + OMITTED_BMP_INDEX_1_LENGTH]);
       }
 
       // Write the index-2 array values for supplementary code points,
       // shifted right by INDEX_SHIFT, after adding dataMove
       for (i = 0; i < this.index2Length - index2Offset; i++) {
-        data[destIdx++]
-          = ((dataMove + this.index2[index2Offset + i]) >> INDEX_SHIFT);
+        data[destIdx++] =
+          ((dataMove + this.index2[index2Offset + i]) >> INDEX_SHIFT);
       }
     }
 
@@ -1152,7 +1135,7 @@ export class UnicodeTrieBuilder {
 
     const compressed = brotliCompressSync(data);
 
-    const values = Buffer.from(JSON.stringify(trie.values), "utf8");
+    const values = Buffer.from(JSON.stringify(trie.values), 'utf8');
     const compressedValues = brotliCompressSync(values);
 
     const buf = Buffer.alloc(12 + compressed.length + compressedValues.length);
@@ -1187,36 +1170,40 @@ export class UnicodeTrieBuilder {
    * @returns {string}
    */
   toModule(opts = {}) {
-    const { name, quot: q, semi: s, version, date, pkg } = {
-      name: "Trie",
+    const {name, quot: q, semi: s, version, date, pkg} = {
+      name: 'Trie',
       quot: '"',
-      semi: ";",
-      pkg: "@cto.af/unicode-trie",
+      semi: ';',
+      pkg: '@cto.af/unicode-trie',
       ...opts,
     };
     const buf = this.toBuffer();
-    let ret = `import { Buffer } from ${q}buffer${q}${s}\n`;
-    ret += `import { UnicodeTrie } from ${q}${pkg}${q}${s}\n\n`;
+    let ret = `import {Buffer} from ${q}buffer${q}${s}\n`;
+    ret += `import {UnicodeTrie} from ${q}${pkg}${q}${s}\n\n`;
     if (version) {
       ret += `export const version = ${q}${version}${q}${s}\n`;
     }
     if (date) {
       ret += `export const inputFileDate = new Date(${q}${new Date(date).toISOString()}${q})${s}\n`;
     }
+
+    /* eslint-disable newline-per-chained-call */
     ret += `\
 export const generatedDate = new Date(${q}${new Date().toISOString()}${q})${s}
 export const ${name} = new UnicodeTrie(Buffer.from(
-  \`${buf.toString("base64").split(/(.{72})/).filter(x => x).join("\n   ")}\`,
+  \`${buf.toString('base64').split(/(.{72})/).filter(x => x).join('\n   ')}\`,
   ${q}base64${q}
 ))${s}
+
 /**
  * @type {Record<string, number>}
  */
 export const names = Object.fromEntries(
   ${name}.values.map((v, i) => [v, i])
 )${s}
-export const values = ${name}.values${s}
+export const {values} = ${name}${s}
 `;
+    /* eslint-enable newline-per-chained-call */
     return ret;
   }
 }

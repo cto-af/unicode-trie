@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export class UnicodeTrie {
     /**
      * @typedef {object} TrieValues
@@ -43,3 +44,4 @@ export class UnicodeTrie {
      */
     getString(codePoint: number): number | string;
 }
+import { Buffer } from 'buffer';
