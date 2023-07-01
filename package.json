@@ -27,12 +27,22 @@
   "repository": "cto-af/unicode-trie",
   "license": "MIT",
   "devDependencies": {
-    "@peggyjs/eslint-config": "3.0.1",
-    "@types/node": "20.2.3",
-    "c8": "7.13.0",
-    "eslint": "8.41.0",
+    "@cto.af/eslint-config": "2.0.3",
+    "@types/node": "20.3.3",
+    "c8": "8.0.0",
+    "eslint": "8.44.0",
     "mocha": "10.2.0",
-    "typescript": "5.0.4"
+    "typescript": "5.1.6"
+  },
+  "pnpm": {
+    "overrides": {
+      "semver": ">=7.5.3",
+      "word-wrap": "npm:@aashutoshrathi/word-wrap"
+    }
+  },
+  "overrides": {
+    "semver": ">=7.5.3",
+    "word-wrap": "npm:@aashutoshrathi/word-wrap"
   },
   "engines": {
     "node": ">=16"

@@ -1,5 +1,5 @@
-const isBigEndian
-  = (new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x12);
+const isBigEndian =
+  (new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x12);
 
 /**
  * Exported for testing
@@ -9,8 +9,8 @@ const isBigEndian
 export function swap32(array) {
   const len = array.length;
   for (let i = 0; i < len; i += 4) {
-    [array[i], array[i + 1], array[i + 2], array[i + 3]]
-      = [array[i + 3], array[i + 2], array[i + 1], array[i]];
+    [array[i], array[i + 1], array[i + 2], array[i + 3]] =
+      [array[i + 3], array[i + 2], array[i + 1], array[i]];
   }
 }
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { LineBreak } from "./lineBreak.js";
+import {LineBreak} from './lineBreak.js';
 
 for (const num of process.argv.slice(2)) {
   const n = parseInt(num, 16);
-  console.log(`U+${n.toString(16).padStart(4, "0")}:`, LineBreak.getString(n));
+  // eslint-disable-next-line no-console
+  console.log(`U+${n.toString(16).padStart(4, '0')}:`, LineBreak.getString(n));
 }

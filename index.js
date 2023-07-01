@@ -1,5 +1,6 @@
-import { brotliDecompressSync } from "zlib";
-import { swap32LE } from "./swap.js";
+import {Buffer} from 'buffer';
+import {brotliDecompressSync} from 'zlib';
+import {swap32LE} from './swap.js';
 
 // Shift size for getting the index-1 table offset.
 const SHIFT_1 = 6 + 5;
@@ -35,7 +36,8 @@ const DATA_MASK = DATA_BLOCK_LENGTH - 1;
 
 // The part of the index-2 table for U+D800..U+DBFF stores values for
 // lead surrogate code _units_ not code _points_.
-// Values for lead surrogate code _points_ are indexed with this portion of the table.
+// Values for lead surrogate code _points_ are indexed with this portion of
+// the table.
 // Length=32=0x20=0x400>>SHIFT_2. (There are 1024=0x400 lead surrogates.)
 const LSCP_INDEX_2_OFFSET = 0x10000 >> SHIFT_2;
 const LSCP_INDEX_2_LENGTH = 0x400 >> SHIFT_2;
@@ -46,23 +48,23 @@ const INDEX_2_BMP_LENGTH = LSCP_INDEX_2_OFFSET + LSCP_INDEX_2_LENGTH;
 // The 2-byte UTF-8 version of the index-2 table follows at offset 2080=0x820.
 // Length 32=0x20 for lead bytes C0..DF, regardless of SHIFT_2.
 const UTF8_2B_INDEX_2_OFFSET = INDEX_2_BMP_LENGTH;
-const UTF8_2B_INDEX_2_LENGTH = 0x800 >> 6;  // U+0800 is the first code point after 2-byte UTF-8
+// U+0800 is the first code point after 2-byte UTF-8
+const UTF8_2B_INDEX_2_LENGTH = 0x800 >> 6;
 
-// The index-1 table, only used for supplementary code points, at offset 2112=0x840.
-// Variable length, for code points up to highStart, where the last single-value range starts.
-// Maximum length 512=0x200=0x100000>>SHIFT_1.
+// The index-1 table, only used for supplementary code points, at offset
+// 2112=0x840. Variable length, for code points up to highStart, where the
+// last single-value range starts. Maximum length 512=0x200=0x100000>>SHIFT_1.
 // (For 0x100000 supplementary code points U+10000..U+10ffff.)
 //
-// The part of the index-2 table for supplementary code points starts
-// after this index-1 table.
+// The part of the index-2 table for supplementary code points starts after
+// this index-1 table.
 //
-// Both the index-1 table and the following part of the index-2 table
-// are omitted completely if there is only BMP data.
+// Both the index-1 table and the following part of the index-2 table are
+// omitted completely if there is only BMP data.
 const INDEX_1_OFFSET = UTF8_2B_INDEX_2_OFFSET + UTF8_2B_INDEX_2_LENGTH;
 
 // The alignment size of a data block. Also the granularity for compaction.
 const DATA_GRANULARITY = 1 << INDEX_SHIFT;
-
 export class UnicodeTrie {
   /**
    * @typedef {object} TrieValues
@@ -98,9 +100,9 @@ export class UnicodeTrie {
       /**
        * @type{string[]}
        */
-      this.values = values.length
-        ? JSON.parse(brotliDecompressSync(values).toString("utf8"))
-        : [];
+      this.values = values.length ?
+        JSON.parse(brotliDecompressSync(values).toString('utf8')) :
+        [];
 
       // Inflate the actual trie data
       data = brotliDecompressSync(data.subarray(12, 12 + uncompressedLength));
@@ -138,10 +140,10 @@ export class UnicodeTrie {
       (codePoint < 0xd800) || ((codePoint > 0xdbff) && (codePoint <= 0xffff))
     ) {
       // Ordinary BMP code point, excluding leading surrogates.
-      // BMP uses a single level lookup.  BMP index starts at offset 0 in the index.
-      // data is stored in the index array itself.
-      const index = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT)
-        + (codePoint & DATA_MASK);
+      // BMP uses a single level lookup.  BMP index starts at offset 0 in the
+      // index. data is stored in the index array itself.
+      const index = (this.data[codePoint >> SHIFT_2] << INDEX_SHIFT) +
+        (codePoint & DATA_MASK);
       val = this.data[index];
     } else if (codePoint <= 0xffff) {
       // Lead Surrogate Code Point.  A Separate index section is stored for
@@ -149,8 +151,8 @@ export class UnicodeTrie {
       //   The main index has the code unit data.
       //   For this function, we need the code point data.
       const index = (
-        this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)]
-          << INDEX_SHIFT
+        this.data[LSCP_INDEX_2_OFFSET + ((codePoint - 0xd800) >> SHIFT_2)] <<
+          INDEX_SHIFT
       ) + (codePoint & DATA_MASK);
       val = this.data[index];
     } else if (codePoint < this.highStart) {

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export class UnicodeTrieBuilder {
     /**
      * Create a builder.  Ideally this is called from tooling at build time,
@@ -6,7 +7,8 @@ export class UnicodeTrieBuilder {
      *
      * @param {number|string} initialValue Default value if none other specified.
      * @param {number|string} errorValue Error value for out of range inputs.
-     * @param {string[]} [values=[]] Initial set of strings that are mapped to numbers.
+     * @param {string[]} [values=[]] Initial set of strings that are mapped to
+     *   numbers.
      */
     constructor(initialValue: number | string, errorValue: number | string, values?: string[] | undefined);
     values: string[];
@@ -130,4 +132,5 @@ export class UnicodeTrieBuilder {
     } | undefined): string;
     #private;
 }
-import { UnicodeTrie } from "./index.js";
+import { UnicodeTrie } from './index.js';
+import { Buffer } from 'buffer';

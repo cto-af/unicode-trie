@@ -1,30 +1,13 @@
-"use strict";
+'use strict';
 
 module.exports = {
-  root: true,
-  extends: ["@peggyjs"],
-  ignorePatterns: [
-    "docs/",
-    "node_modules/",
-  ],
-  overrides: [
-    {
-      files: ["*.js"],
-      parserOptions: {
-        sourceType: "module",
-        ecmaVersion: 2022,
-      },
-      rules: {
-        "no-eq-null": "off",
-        "eqeqeq": ["error", "always", { "null": "ignore" }],
-        "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-      },
-    },
-    {
-      files: ["test/*.js"],
-      env: {
-        mocha: true,
-      },
-    },
-  ],
+  extends: '@cto.af/eslint-config/modules',
+  parserOptions: {
+    ecmaVersion: 2022,
+  },
+  rules: {
+    'prefer-named-capture-group': 'off',
+    'semi': ['error', 'always'],
+    'semi-style': ['error', 'last'],
+  },
 };
