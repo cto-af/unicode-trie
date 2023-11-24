@@ -17,9 +17,9 @@ import {
   SHIFT_2,
   UTF8_2B_INDEX_2_LENGTH,
 } from './constants.js';
-import {Buffer} from 'buffer';
+import {Buffer} from 'node:buffer';
 import {UnicodeTrie} from './index.js';
-import {brotliCompressSync} from 'zlib';
+import {brotliCompressSync} from 'node:zlib';
 import {swap32LE} from './swap.js';
 
 // Number of code points per index-1 table entry. 2048=0x800
@@ -1178,7 +1178,7 @@ export class UnicodeTrieBuilder {
       ...opts,
     };
     const buf = this.toBuffer();
-    let ret = `import {Buffer} from ${q}buffer${q}${s}\n`;
+    let ret = `import {Buffer} from ${q}node:buffer${q}${s}\n`;
     ret += `import {UnicodeTrie} from ${q}${pkg}${q}${s}\n\n`;
     if (version) {
       ret += `export const version = ${q}${version}${q}${s}\n`;

@@ -1,5 +1,5 @@
-import {Buffer} from 'buffer';
-import assert from 'assert';
+import {Buffer} from 'node:buffer';
+import assert from 'node:assert';
 import {swap32} from '../swap.js';
 
 it('swaps 32bit words', () => {

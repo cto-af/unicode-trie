@@ -34,7 +34,7 @@ for faster runtime performance.  To build a Unicode Trie, use the
 
 ```js
 import {UnicodeTrieBuilder} from '@cto.af/unicode-trie/builder.js';
-import fs from 'fs';
+import fs from 'node:fs';
 
 // create a trie
 let t = new UnicodeTrieBuilder();
@@ -76,7 +76,7 @@ trie.  From there, you can lookup values.
 
 ```js
 import {UnicodeTrie} from '@cto.af/unicode-trie';
-import fs from 'fs'
+import fs from 'node:fs'
 
 // load serialized trie from binary file
 const data = fs.readFileSync('data.trie');

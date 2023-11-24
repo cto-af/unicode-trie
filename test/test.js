@@ -1,11 +1,11 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable max-len */
 /* eslint-disable no-multi-spaces */
-import {Buffer} from 'buffer';
+import {Buffer} from 'node:buffer';
 import {UnicodeTrie} from '../index.js';
 import {UnicodeTrieBuilder} from '../builder.js';
-import assert from 'assert';
-import {brotliCompressSync} from 'zlib';
+import assert from 'node:assert';
+import {brotliCompressSync} from 'node:zlib';
 
 describe('unicode trie', () => {
   it('set', () => {

@@ -133,4 +133,4 @@ export class UnicodeTrieBuilder {
     #private;
 }
 import { UnicodeTrie } from './index.js';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
