@@ -44,4 +44,4 @@ export class UnicodeTrie {
      */
     getString(codePoint: number): number | string;
 }
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';

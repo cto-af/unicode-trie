@@ -9,8 +9,8 @@ import {
   SHIFT_1,
   SHIFT_2,
 } from './constants.js';
-import {Buffer} from 'buffer';
-import {brotliDecompressSync} from 'zlib';
+import {Buffer} from 'node:buffer';
+import {brotliDecompressSync} from 'node:zlib';
 import {swap32LE} from './swap.js';
 
 export class UnicodeTrie {
