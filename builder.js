@@ -1187,7 +1187,7 @@ export class UnicodeTrieBuilder {
       ret += `export const inputFileDate = new Date(${q}${new Date(date).toISOString()}${q})${s}\n`;
     }
 
-    /* eslint-disable newline-per-chained-call */
+    /* eslint-disable @stylistic/newline-per-chained-call */
     ret += `\
 export const generatedDate = new Date(${q}${new Date().toISOString()}${q})${s}
 export const ${name} = new UnicodeTrie(Buffer.from(
@@ -1203,7 +1203,7 @@ export const names = Object.fromEntries(
 )${s}
 export const {values} = ${name}${s}
 `;
-    /* eslint-enable newline-per-chained-call */
+    /* eslint-enable @stylistic/newline-per-chained-call */
     return ret;
   }
 }
