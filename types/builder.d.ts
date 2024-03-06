@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export class UnicodeTrieBuilder {
     /**
      * Create a builder.  Ideally this is called from tooling at build time,
@@ -69,7 +68,7 @@ export class UnicodeTrieBuilder {
      */
     freeze(): UnicodeTrie;
     /**
-     * Generates a Buffer containing the serialized and compressed trie.
+     * Generates a Uint8Array containing the serialized and compressed trie.
      * Trie data is compressed using the brotli algorithm to minimize file size.
      * Format:
      *   uint32_t highStart;
@@ -77,9 +76,9 @@ export class UnicodeTrieBuilder {
      *   uint32_t compressedDataLength;
      *   uint8_t trieData[compressedDataLength];
      *   uint8_t compressedJSONstringValuesArray[];
-     * @returns {Buffer}
+     * @returns {Uint8Array}
      */
-    toBuffer(): Buffer;
+    toBuffer(): Uint8Array;
     /**
      * @typedef {object} ModuleOptions
      * @prop {string=} [version] Version of the source file, usually the Unicode
@@ -133,4 +132,3 @@ export class UnicodeTrieBuilder {
     #private;
 }
 import { UnicodeTrie } from './index.js';
-import { Buffer } from 'node:buffer';

@@ -26,7 +26,7 @@ export class UnicodeTrie {
   /**
    * Creates a trie, either from compressed data or pre-parsed values.
    *
-   * @param {Buffer|Uint8Array|TrieValues} data
+   * @param {Uint8Array|TrieValues} data
    */
   constructor(data) {
     if (data instanceof Uint8Array) {
@@ -74,6 +74,8 @@ export class UnicodeTrie {
    * @returns {UnicodeTrie} The decoded Unicode trie.
    */
   static fromBase64(base64) {
+    // This use of Buffer is ok unless we're using Parcel or some other
+    // packer that polyfills automatically.
     if (typeof Buffer === 'function') {
       return new UnicodeTrie(new Uint8Array(Buffer.from(base64, 'base64')));
     }

@@ -80,11 +80,11 @@ describe('unicode trie', () => {
     const trie = new UnicodeTrieBuilder();
     trie.set(0x4567, 99);
 
-    const buf = Buffer.from(trie.toBuffer());
-    const bufferExpected = Buffer.from([
+    const buf = trie.toBuffer();
+    const bufferExpected = new Uint8Array([
       0, 72, 0, 0, 0, 0, 0, 0, 83, 0, 0, 0,
     ]);
-    assert.equal(buf.subarray(0, 12).toString('hex'), bufferExpected.toString('hex'));
+    assert.deepEqual(buf.subarray(0, 12), bufferExpected);
   });
 
   it('should work with compressed serialization format', () => {
