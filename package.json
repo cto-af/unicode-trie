@@ -22,7 +22,8 @@
   ],
   "author": "Devon Govett <devongovett@gmail.com>",
   "contributors": [
-    "Joe Hildebrand <joe-github@cursive.net>"
+    "Joe Hildebrand <joe-github@cursive.net>",
+    "valadaptive <valadaptive@protonmail.com>"
   ],
   "repository": "cto-af/unicode-trie",
   "license": "MIT",
