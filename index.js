@@ -1,4 +1,5 @@
 import {
+  CURRENT_VERSION,
   DATA_GRANULARITY,
   DATA_MASK,
   INDEX_1_OFFSET,
@@ -6,6 +7,7 @@ import {
   INDEX_SHIFT,
   LSCP_INDEX_2_OFFSET,
   OMITTED_BMP_INDEX_1_LENGTH,
+  PREFIX_LENGTH,
   SHIFT_1,
   SHIFT_2,
 } from './constants.js';
@@ -36,9 +38,16 @@ export class UnicodeTrie {
       this.highStart = view.getUint32(0, true);
       this.errorValue = view.getUint32(4, true);
       uncompressedLength = view.getUint32(8, true);
+      if (uncompressedLength !== CURRENT_VERSION) {
+        throw new Error('Trie created with old version of @cto.af/unicode-trie.');
+      }
+      uncompressedLength = view.getUint32(12, true);
+      if (PREFIX_LENGTH + uncompressedLength > data.byteLength) {
+        throw new RangeError('Invalid input length');
+      }
 
       // Don't swap UTF8-encoded text.
-      const values = data.subarray(12 + uncompressedLength);
+      const values = data.subarray(PREFIX_LENGTH + uncompressedLength);
 
       /**
        * @type{string[]}
@@ -48,7 +57,10 @@ export class UnicodeTrie {
         [];
 
       // Inflate the actual trie data
-      data = gunzipSync(data.subarray(12, 12 + uncompressedLength));
+      data = gunzipSync(data.subarray(
+        PREFIX_LENGTH,
+        PREFIX_LENGTH + uncompressedLength
+      ));
 
       // Swap bytes from little-endian
       swap32LE(data);

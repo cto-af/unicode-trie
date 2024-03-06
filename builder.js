@@ -1,5 +1,6 @@
 /* eslint-disable max-params */
 import {
+  CURRENT_VERSION,
   DATA_BLOCK_LENGTH,
   DATA_GRANULARITY,
   DATA_MASK,
@@ -12,6 +13,7 @@ import {
   LSCP_INDEX_2_OFFSET,
   MAX_INDEX_1_LENGTH,
   OMITTED_BMP_INDEX_1_LENGTH,
+  PREFIX_LENGTH,
   SHIFT_1,
   SHIFT_1_2,
   SHIFT_2,
@@ -1154,14 +1156,15 @@ export class UnicodeTrieBuilder {
     const compressedValues = gzipSync(values, {level: 9});
 
     const arr = new Uint8Array(
-      12 + compressed.length + compressedValues.length
+      PREFIX_LENGTH + compressed.length + compressedValues.length
     );
     const dv = new DataView(arr.buffer);
     dv.setUint32(0, trie.highStart, true);
     dv.setUint32(4, trie.errorValue, true);
-    dv.setUint32(8, compressed.length, true);
-    arr.set(compressed, 12);
-    arr.set(compressedValues, 12 + compressed.length);
+    dv.setUint32(8, CURRENT_VERSION, true);
+    dv.setUint32(12, compressed.length, true);
+    arr.set(compressed, PREFIX_LENGTH);
+    arr.set(compressedValues, PREFIX_LENGTH + compressed.length);
 
     return arr;
   }

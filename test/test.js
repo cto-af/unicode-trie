@@ -82,9 +82,9 @@ describe('unicode trie', () => {
 
     const buf = trie.toBuffer();
     const bufferExpected = new Uint8Array([
-      0, 72, 0, 0, 0, 0, 0, 0, 83, 0, 0, 0,
+      0, 72, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 83, 0, 0, 0,
     ]);
-    assert.deepEqual(buf.subarray(0, 12), bufferExpected);
+    assert.deepEqual(buf.subarray(0, 16), bufferExpected);
   });
 
   it('should work with compressed serialization format', () => {
@@ -309,20 +309,20 @@ describe('unicode trie', () => {
 
 // Unicode 15.1, fflate compressed
 const EastAsianWidthNew = `\
-AAAEAAAAAAC1AgAAH4sIAALJ6GUCA+2aP0gfMRTHz59tqbUUuhQKHVpoKXRxKg4OCi6Ki6A4
-CC7iJE7iJCKIOCgKgrg5iLrpppujkzgoqJOgLuKgg+giCOI3mpN43P0u5y8vyXnvBx+Sy7+X
-vHtJXi6/5VIQrIJ1sAnC5yKFTDL7CqyPYnBksK1jcJaQd1Fh21fgVsbvQXV1EHwAX8A38AP8
-Bv9AHRDl/iNskHEbNEtZbZZkdkBOOF+7lXiUXuTtyng/4oOy7ECkzjCeR5W0cSU+hbioK+Kz
-ZWQxDGOWuP2ZYRiGYRiGYfLGvDxHLlg8o+uyQtAnfucMwzD2KHm4tzAM4/f9ZyXfaalYk/c4
-Gwg3Y9a18F5HRdzZbIEdD9bBz7VPTH9yQ1OQncWPQTBX9cQp4j9rXua34nkykhZlG/k1kB+2
-44JWD+QXem0p+J3pocd9E/fjj/+FKLiveKJpo+codwluMtr0QQ50cJdgA8G7+PT3kfRaPItx
-fkX4PaaO0MMvpIvwL8Lwfxt1iNfLdLFnN8q4SpNMa0HYDrrAtdLnHqVOp5QdPvfheSBhDCG3
-Gva/B4bQzp+Y/kV9oBGUGQMTYAbMp8h/Cz5gnhF2tVSqeoZ//CvyT8wAl+j20ZVeTJc18Y6S
-dONqNaMcf9a2KeyPUm9U9UyOr1xbunLK1afQgdqvuLJZ5k1SfQr7obbJNJ2k6c30euZSX7bn
-P4XNpNm2L/s/lSxf/J08+Fs+9cGVTkzKM9GWbdu1LcPlXM/LechF/22Mv9L20s4+NvRGka+r
-b518inHb9Glcz/vX6DyprA9+f5LtmfjWQLFe+PCth0L2a/wtV/uVi/nt8zt1eZ6hlG167afy
-F/P0Lnw+V5ne+2zu1S6/+Wf1l3X2X905aNr3cnlec+HfU+1/vq3xVOuyaf/c9JrxAKGklNHg
-SQAAH4sIAALJ6GUCA4tW8lPSUYpUigUA0d8CLAkAAAA=`;
+AAAEAAAAAAD/////tQIAAB+LCAAC0uhlAgPtmj9IHzEUx8+fbam1FLoUCh1aaCl0cSoODgou
+iougOAgu4iRO4iQiiDgoCoK4OYi66aabo5M4KKiToC7ioIPoIgjiN5qTeNz9LucvL8l57wcf
+ksu/l7x7SV4uv+VSEKyCdbAJwucihUwy+wqsj2JwZLCtY3CWkHdRYdtX4FbG70F1dRB8AF/A
+N/AD/Ab/QB0Q5f4jbJBxGzRLWW2WZHZATjhfu5V4lF7k7cp4P+KDsuxApM4wnkeVtHElPoW4
+qCvis2VkMQxjlrj9mWEYhmEYhmHyxrw8Ry5YPKPrskLQJ37nDMMw9ih5uLcwDOP3/Wcl32mp
+WJP3OBsIN2PWtfBeR0Xc2WyBHQ/Wwc+1T0x/ckNTkJ3Fj0EwV/XEKeI/a17mt+J5MpIWZRv5
+NZAftuOCVg/kF3ptKfid6aHHfRP344//hSi4r3iiaaPnKHcJbjLa9EEOdHCXYAPBu/j095H0
+WjyLcX5F+D2mjtDDL6SL8C/C8H8bdYjXy3SxZzfKuEqTTGtB2A66wLXS5x6lTqeUHT734Xkg
+YQwhtxr2vweG0M6fmP5FfaARlBkDE2AGzKfIfws+YJ4RdrVUqnqGf/wr8k/MAJfo9tGVXkyX
+NfGOknTjajWjHH/Wtinsj1JvVPVMjq9cW7pyytWn0IHar7iyWeZNUn0K+6G2yTSdpOnN9Hrm
+Ul+25z+FzaTZti/7P5UsX/ydPPhbPvXBlU5MyjPRlm3btS3D5VzPy3nIRf9tjL/S9tLOPjb0
+RpGvq2+dfIpx2/RpXM/71+g8qawPfn+S7Zn41kCxXvjwrYdC9mv8LVf7lYv57fM7dXmeoZRt
+eu2n8hfz9C58PleZ3vts7tUuv/ln9Zd19l/dOWja93J5XnPh31Ptf76t8VTrsmn/3PSa8QCh
+pJTR4EkAAB+LCAAC0uhlAgOLVvJT0lGKVIoFANHfAiwJAAAA`;
 
 // Unicode 15.1, brotli-compressed
 const EastAsianWidthOld = `\
@@ -351,10 +351,17 @@ describe('compatibility', () => {
     assert.equal(trie.get(0x3000), 1);
     globalThis.Buffer = buf;
   });
+
   it('rejects old versions', () => {
     assert.throws(
       () => UnicodeTrie.fromBase64(EastAsianWidthOld),
-      /Error: invalid gzip data/
+      /Trie created with old version of @cto.af\/unicode-trie\./
     );
+  });
+
+  it('rejects malformed inputs', () => {
+    assert.throws(() => new UnicodeTrie(new Uint8Array([
+      0, 72, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255,
+    ])), /RangeError: Invalid input length/);
   });
 });
