@@ -1,11 +1,10 @@
 /* eslint-disable @stylistic/max-len */
 /* eslint-disable @stylistic/no-multi-spaces */
 /* eslint-disable prefer-destructuring */
-import {Buffer} from 'node:buffer';
 import {UnicodeTrie} from '../index.js';
 import {UnicodeTrieBuilder} from '../builder.js';
 import assert from 'node:assert';
-import {brotliCompressSync} from 'node:zlib';
+import {gzipSync} from 'fflate';
 
 describe('unicode trie', () => {
   it('set', () => {
@@ -81,9 +80,9 @@ describe('unicode trie', () => {
     const trie = new UnicodeTrieBuilder();
     trie.set(0x4567, 99);
 
-    const buf = trie.toBuffer();
+    const buf = Buffer.from(trie.toBuffer());
     const bufferExpected = Buffer.from([
-      0, 72, 0, 0, 0, 0, 0, 0, 62, 0, 0, 0,
+      0, 72, 0, 0, 0, 0, 0, 0, 83, 0, 0, 0,
     ]);
     assert.equal(buf.subarray(0, 12).toString('hex'), bufferExpected.toString('hex'));
   });
@@ -120,7 +119,7 @@ describe('unicode trie', () => {
   it('should handle the old format without string map', () => {
     const t = new UnicodeTrieBuilder(1);
     const buf = t.toBuffer();
-    const strings = brotliCompressSync(JSON.stringify([]));
+    const strings = gzipSync(JSON.stringify([]));
     const trie = new UnicodeTrie(buf.subarray(0, buf.length - strings.length));
     assert.equal(trie.get(13), 1);
   });

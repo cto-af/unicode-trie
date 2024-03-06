@@ -9,9 +9,10 @@ import {
   SHIFT_1,
   SHIFT_2,
 } from './constants.js';
-import {Buffer} from 'node:buffer';
-import {brotliDecompressSync} from 'node:zlib';
+import {gunzipSync} from 'fflate';
 import {swap32LE} from './swap.js';
+
+const DECODER = new TextDecoder();
 
 export class UnicodeTrie {
   /**
@@ -23,7 +24,7 @@ export class UnicodeTrie {
    */
 
   /**
-   * Createa a trie, either from compressed data or pre-parsed values.
+   * Creates a trie, either from compressed data or pre-parsed values.
    *
    * @param {Buffer|Uint8Array|TrieValues} data
    */
@@ -31,16 +32,10 @@ export class UnicodeTrie {
     if (data instanceof Uint8Array) {
       // Read binary format
       let uncompressedLength = 0;
-      if (Buffer.isBuffer(data)) {
-        this.highStart = data.readUInt32LE(0);
-        this.errorValue = data.readUInt32LE(4);
-        uncompressedLength = data.readUInt32LE(8);
-      } else {
-        const view = new DataView(data.buffer);
-        this.highStart = view.getUint32(0, true);
-        this.errorValue = view.getUint32(4, true);
-        uncompressedLength = view.getUint32(8, true);
-      }
+      const view = new DataView(data.buffer);
+      this.highStart = view.getUint32(0, true);
+      this.errorValue = view.getUint32(4, true);
+      uncompressedLength = view.getUint32(8, true);
 
       // Don't swap UTF8-encoded text.
       const values = data.subarray(12 + uncompressedLength);
@@ -49,11 +44,11 @@ export class UnicodeTrie {
        * @type{string[]}
        */
       this.values = values.length ?
-        JSON.parse(brotliDecompressSync(values).toString('utf8')) :
+        JSON.parse(DECODER.decode(gunzipSync(values))) :
         [];
 
       // Inflate the actual trie data
-      data = brotliDecompressSync(data.subarray(12, 12 + uncompressedLength));
+      data = gunzipSync(data.subarray(12, 12 + uncompressedLength));
 
       // Swap bytes from little-endian
       swap32LE(data);
@@ -71,6 +66,20 @@ export class UnicodeTrie {
         values: this.values = [],
       } = data);
     }
+  }
+
+  /**
+   * Creates a trie from a base64-encoded string.
+   * @param {string} base64 The base64-encoded trie to initialize.
+   * @returns {UnicodeTrie} The decoded Unicode trie.
+   */
+  static fromBase64(base64) {
+    if (typeof Buffer === 'function') {
+      return new UnicodeTrie(new Uint8Array(Buffer.from(base64, 'base64')));
+    }
+    return new UnicodeTrie(new Uint8Array(atob(base64)
+      .split('')
+      .map(c => c.charCodeAt(0))));
   }
 
   /**

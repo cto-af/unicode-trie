@@ -17,9 +17,8 @@ import {
   SHIFT_2,
   UTF8_2B_INDEX_2_LENGTH,
 } from './constants.js';
-import {Buffer} from 'node:buffer';
 import {UnicodeTrie} from './index.js';
-import {brotliCompressSync} from 'node:zlib';
+import {gzipSync} from 'fflate';
 import {swap32LE} from './swap.js';
 
 // Number of code points per index-1 table entry. 2048=0x800
@@ -130,6 +129,22 @@ function equal_int(a, s, t, length) {
 
   return true;
 }
+
+/**
+ * @param {Uint8Array} buffer
+ * @returns {string}
+ * @private
+ */
+function uint8ArrayToBase64(buffer) {
+  let binary = '';
+  for (let i = 0; i < buffer.byteLength; i++) {
+    binary += String.fromCharCode(buffer[i]);
+  }
+  return btoa(binary);
+}
+
+// Shared TextEncoder instance.
+const ENCODER = new TextEncoder();
 
 export class UnicodeTrieBuilder {
   /**
@@ -1115,7 +1130,7 @@ export class UnicodeTrieBuilder {
   //
 
   /**
-   * Generates a Buffer containing the serialized and compressed trie.
+   * Generates a Uint8Array containing the serialized and compressed trie.
    * Trie data is compressed using the brotli algorithm to minimize file size.
    * Format:
    *   uint32_t highStart;
@@ -1123,7 +1138,7 @@ export class UnicodeTrieBuilder {
    *   uint32_t compressedDataLength;
    *   uint8_t trieData[compressedDataLength];
    *   uint8_t compressedJSONstringValuesArray[];
-   * @returns {Buffer}
+   * @returns {Uint8Array}
    */
   toBuffer() {
     const trie = this.freeze();
@@ -1133,19 +1148,22 @@ export class UnicodeTrieBuilder {
     // Swap bytes to little-endian
     swap32LE(data);
 
-    const compressed = brotliCompressSync(data);
+    const compressed = gzipSync(data, {level: 9});
 
-    const values = Buffer.from(JSON.stringify(trie.values), 'utf8');
-    const compressedValues = brotliCompressSync(values);
+    const values = ENCODER.encode(JSON.stringify(trie.values));
+    const compressedValues = gzipSync(values, {level: 9});
 
-    const buf = Buffer.alloc(12 + compressed.length + compressedValues.length);
-    buf.writeUInt32LE(trie.highStart, 0);
-    buf.writeUInt32LE(trie.errorValue, 4);
-    buf.writeUInt32LE(compressed.length, 8);
-    compressed.copy(buf, 12);
-    compressedValues.copy(buf, 12 + compressed.length);
+    const arr = new Uint8Array(
+      12 + compressed.length + compressedValues.length
+    );
+    const dv = new DataView(arr.buffer);
+    dv.setUint32(0, trie.highStart, true);
+    dv.setUint32(4, trie.errorValue, true);
+    dv.setUint32(8, compressed.length, true);
+    arr.set(compressed, 12);
+    arr.set(compressedValues, 12 + compressed.length);
 
-    return buf;
+    return arr;
   }
 
   /**
@@ -1178,8 +1196,7 @@ export class UnicodeTrieBuilder {
       ...opts,
     };
     const buf = this.toBuffer();
-    let ret = `import {Buffer} from ${q}node:buffer${q}${s}\n`;
-    ret += `import {UnicodeTrie} from ${q}${pkg}${q}${s}\n\n`;
+    let ret = `import {UnicodeTrie} from ${q}${pkg}${q}${s}\n\n`;
     if (version) {
       ret += `export const version = ${q}${version}${q}${s}\n`;
     }
@@ -1190,10 +1207,9 @@ export class UnicodeTrieBuilder {
     /* eslint-disable @stylistic/newline-per-chained-call */
     ret += `\
 export const generatedDate = new Date(${q}${new Date().toISOString()}${q})${s}
-export const ${name} = new UnicodeTrie(Buffer.from(
-  \`${buf.toString('base64').split(/(.{72})/).filter(x => x).join('\n   ')}\`,
-  ${q}base64${q}
-))${s}
+export const ${name} = UnicodeTrie.fromBase64(
+  \`${uint8ArrayToBase64(buf).split(/(.{72})/).filter(x => x).join('\n   ')}\`
+)${s}
 
 /**
  * @type {Record<string, number>}
