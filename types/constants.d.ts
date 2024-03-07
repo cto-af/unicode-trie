@@ -15,3 +15,5 @@ export const UTF8_2B_INDEX_2_LENGTH: number;
 export const INDEX_1_OFFSET: number;
 export const MAX_INDEX_1_LENGTH: number;
 export const DATA_GRANULARITY: number;
+export const CURRENT_VERSION: 4294967295;
+export const PREFIX_LENGTH: 16;

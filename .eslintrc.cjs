@@ -9,5 +9,6 @@ module.exports = {
     'prefer-named-capture-group': 'off',
     'semi': ['error', 'always'],
     'semi-style': ['error', 'last'],
+    'n/prefer-global/buffer': ['error', 'always'],
   },
 };

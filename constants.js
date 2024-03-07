@@ -61,3 +61,11 @@ export const MAX_INDEX_1_LENGTH = 0x100000 >> SHIFT_1;
 
 // The alignment size of a data block. Also the granularity for compaction.
 export const DATA_GRANULARITY = 1 << INDEX_SHIFT;
+
+// This goes in the third u32 of the input to show that we are decoding with
+// the same format the input was encoded with.  Could theoretically decrement
+// this for every major format change.
+export const CURRENT_VERSION = 0xFFFFFFFF;
+
+// Number of bytes before compressed data starts in this CURRENT_VERSION.
+export const PREFIX_LENGTH = 16;

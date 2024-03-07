@@ -1,5 +1,10 @@
-/// <reference types="node" />
 export class UnicodeTrie {
+    /**
+     * Creates a trie from a base64-encoded string.
+     * @param {string} base64 The base64-encoded trie to initialize.
+     * @returns {UnicodeTrie} The decoded Unicode trie.
+     */
+    static fromBase64(base64: string): UnicodeTrie;
     /**
      * @typedef {object} TrieValues
      * @prop {Int32Array} data
@@ -8,11 +13,11 @@ export class UnicodeTrie {
      * @prop {string[]} [values]
      */
     /**
-     * Createa a trie, either from compressed data or pre-parsed values.
+     * Creates a trie, either from compressed data or pre-parsed values.
      *
-     * @param {Buffer|Uint8Array|TrieValues} data
+     * @param {Uint8Array|TrieValues} data
      */
-    constructor(data: Uint8Array | Buffer | {
+    constructor(data: Uint8Array | {
         data: Int32Array;
         highStart: number;
         errorValue: number;
@@ -44,4 +49,3 @@ export class UnicodeTrie {
      */
     getString(codePoint: number): number | string;
 }
-import { Buffer } from 'node:buffer';
