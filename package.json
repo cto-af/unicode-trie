@@ -7,7 +7,7 @@
   "types": "types/index.d.ts",
   "scripts": {
     "test": "c8 mocha",
-    "lint": "eslint . --ext js",
+    "lint": "eslint .",
     "types": "tsc",
     "examples": "cd examples && node genLineBreak.js",
     "build": "npm run examples && npm run lint && npm run types && npm run test"
@@ -31,14 +31,23 @@
     "fflate": "^0.8.2"
   },
   "devDependencies": {
-    "@cto.af/eslint-config": "3.1.0",
-    "@types/node": "20.11.25",
-    "c8": "9.1.0",
-    "eslint": "8.57.0",
-    "mocha": "10.3.0",
-    "typescript": "5.4.2"
+    "@cto.af/eslint-config": "4.0.2",
+    "@types/node": "20.14.8",
+    "c8": "10.1.2",
+    "eslint": "9.5.0",
+    "eslint-plugin-mocha": "10.4.3",
+    "mocha": "10.5.0",
+    "typescript": "5.5.2"
   },
-  "packageManager": "pnpm@8.15.4",
+  "overrides": {
+    "@typescript-eslint/utils": "8.0.0-alpha.30"
+  },
+  "pnpm": {
+    "overrides": {
+      "@typescript-eslint/utils": "8.0.0-alpha.30"
+    }
+  },
+  "packageManager": "pnpm@9.4.0",
   "engines": {
     "node": ">=18"
   }

@@ -1,7 +1,6 @@
-'use strict'
+'use strict';
 
 module.exports = {
   reporter: 'spec',
-  timeout: '30000'
-}
-
+  timeout: '30000',
+};
