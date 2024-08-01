@@ -9,6 +9,8 @@ let txt = null;
 try {
   txt = await fs.readFile(INPUT, 'utf8');
 } catch (ignore) {
+  // Only used in tooling, on modern node
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
   const res = await fetch('https://www.unicode.org/Public/UCD/latest/ucd/LineBreak.txt');
   txt = await res.text();
   fs.writeFile(INPUT, txt, 'utf8');

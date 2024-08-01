@@ -31,23 +31,15 @@
     "fflate": "^0.8.2"
   },
   "devDependencies": {
-    "@cto.af/eslint-config": "4.0.2",
-    "@types/node": "20.14.8",
+    "@cto.af/eslint-config": "4.1.4",
+    "@types/node": "22.0.2",
     "c8": "10.1.2",
-    "eslint": "9.5.0",
-    "eslint-plugin-mocha": "10.4.3",
-    "mocha": "10.5.0",
-    "typescript": "5.5.2"
+    "eslint": "9.8.0",
+    "eslint-plugin-mocha": "10.5.0",
+    "mocha": "10.7.0",
+    "typescript": "5.5.4"
   },
-  "overrides": {
-    "@typescript-eslint/utils": "8.0.0-alpha.30"
-  },
-  "pnpm": {
-    "overrides": {
-      "@typescript-eslint/utils": "8.0.0-alpha.30"
-    }
-  },
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.6.0",
   "engines": {
     "node": ">=18"
   }
