@@ -25,7 +25,10 @@
     "Joe Hildebrand <joe-github@cursive.net>",
     "valadaptive <valadaptive@protonmail.com>"
   ],
-  "repository": "cto-af/unicode-trie",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cto-af/unicode-trie.git"
+  },
   "license": "MIT",
   "dependencies": {
     "fflate": "^0.8.2"
