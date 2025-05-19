@@ -1,0 +1,45 @@
+{
+  "name": "@cto.af/unicode-trie-runtime",
+  "version": "2.0.2",
+  "description": "Runtime code for unicode-trie files.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "docs": "typedoc",
+    "test": "mocha",
+    "types": "tsc",
+    "build": "npm run examples && npm run lint && npm run types && npm run test"
+  },
+  "keywords": [
+    "unicode",
+    "properties",
+    "icu",
+    "trie",
+    "compressed",
+    "brotli"
+  ],
+  "author": "Devon Govett <devongovett@gmail.com>",
+  "contributors": [
+    "Joe Hildebrand <joe-github@cursive.net>",
+    "valadaptive <valadaptive@protonmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cto-af/unicode-trie.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "fflate": "^0.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.19",
+    "c8": "10.1.3",
+    "mocha": "11.4.0",
+    "typedoc": "0.28.4",
+    "typescript": "5.8.3"
+  },
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -18,10 +18,10 @@ import {
   SHIFT_1_2,
   SHIFT_2,
   UTF8_2B_INDEX_2_LENGTH,
-} from './constants.js';
-import {UnicodeTrie} from './index.js';
+} from '@cto.af/unicode-trie-runtime/constants.js';
+import {UnicodeTrie} from '@cto.af/unicode-trie-runtime';
 import {gzipSync} from 'fflate';
-import {swap32LE} from './swap.js';
+import {swap32LE} from '@cto.af/unicode-trie-runtime/swap.js';
 
 // Number of code points per index-1 table entry. 2048=0x800
 const CP_PER_INDEX_1_ENTRY = 1 << SHIFT_1;
@@ -147,6 +147,22 @@ function uint8ArrayToBase64(buffer) {
 
 // Shared TextEncoder instance.
 const ENCODER = new TextEncoder();
+
+/**
+ * @typedef {object} ModuleOptions
+ * @prop {string=} [version] Version of the source file, usually the Unicode
+ *   version.
+ * @prop {string=} [date] Date the source file was created.  Can be parsed
+ *   from most UCD files.
+ * @prop {string=} [etag] Etag from the HTTP GET response.
+ * @prop {string=} [lastModified] Date from the HTTP GET response.
+ * @prop {string} [name="Trie"] Name exported from the module with the Trie
+ *   instance.
+ * @prop {string} [quot='"'] Quote.  Should be single or double.
+ * @prop {string} [semi=";"] Include semicolons? Pass in "" to disable.
+ * @prop {string} [pkg="@cto.af/unicode-trie"] Package name for this
+ *   package.  Mostly useful for internal tooling.
+ */
 
 export class UnicodeTrieBuilder {
   /**
@@ -1128,9 +1144,6 @@ export class UnicodeTrieBuilder {
     return dest;
   }
 
-  //
-  //
-
   /**
    * Generates a Uint8Array containing the serialized and compressed trie.
    * Trie data is compressed using the brotli algorithm to minimize file size.
@@ -1170,20 +1183,6 @@ export class UnicodeTrieBuilder {
   }
 
   /**
-   * @typedef {object} ModuleOptions
-   * @prop {string=} [version] Version of the source file, usually the Unicode
-   *   version.
-   * @prop {string=} [date] Date the source file was created.  Can be parsed
-   *   from most UCD files.
-   * @prop {string} [name="Trie"] Name exported from the module with the Trie
-   *   instance.
-   * @prop {string} [quot='"'] Quote.  Should be single or double.
-   * @prop {string} [semi=";"] Include semicolons? Pass in "" to disable.
-   * @prop {string} [pkg="@cto.af/unicode-trie"] Package name for this
-   *   package.  Mostly useful for internal tooling.
-   */
-
-  /**
    * Create a string version of a JS module that will reconstitute this trie.
    * Suitable for saving to a .mjs file.
    *
@@ -1191,11 +1190,13 @@ export class UnicodeTrieBuilder {
    * @returns {string}
    */
   toModule(opts = {}) {
-    const {name, quot: q, semi: s, version, date, pkg} = {
+    const {name, quot: q, semi: s, version, date, pkg, etag, lastModified} = {
       name: 'Trie',
       quot: '"',
       semi: ';',
-      pkg: '@cto.af/unicode-trie',
+      pkg: '@cto.af/unicode-trie-runtime',
+      etag: undefined,
+      lastModified: undefined,
       ...opts,
     };
     const buf = this.toBuffer();
@@ -1205,6 +1206,12 @@ export class UnicodeTrieBuilder {
     }
     if (date) {
       ret += `export const inputFileDate = new Date(${q}${new Date(date).toISOString()}${q})${s}\n`;
+    }
+    if (etag) {
+      ret += `export const etag = ${q}${etag.replaceAll(q, `\\${q}`)}${q}${s}\n`;
+    }
+    if (lastModified) {
+      ret += `export const lastModified = ${q}${lastModified.replaceAll(q, `\\${q}`)}${q}${s}\n`;
     }
 
     /* eslint-disable @stylistic/newline-per-chained-call */

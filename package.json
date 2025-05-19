@@ -1,24 +1,20 @@
 {
-  "name": "@cto.af/unicode-trie",
+  "name": "@cto.af/unicode-trie-root",
   "version": "2.0.2",
   "description": "Quick fork of unicode-trie for modernity",
   "type": "module",
-  "exports": {
-    ".": {
-      "default": "./index.js",
-      "types": "./types/index.d.ts"
-    },
-    "./builder": {
-      "default": "./builder.js",
-      "types": "./types/builder.d.ts"
-    }
-  },
+  "private": "true",
+  "workspaces": [
+    "pkg/*"
+  ],
   "scripts": {
-    "test": "c8 mocha",
+    "docs": "pnpm run -r docs",
+    "test": "c8 pnpm run -r test",
     "lint": "eslint .",
-    "types": "tsc",
+    "types": "pnpm run -r types",
     "examples": "cd examples && node genLineBreak.js",
-    "build": "npm run examples && npm run lint && npm run types && npm run test"
+    "build": "npm run examples && npm run lint && npm run types && npm run test",
+    "version": "monopub version && pnpm run --sequential --if-present -r version"
   },
   "keywords": [
     "unicode",
@@ -38,20 +34,19 @@
     "url": "git+https://github.com/cto-af/unicode-trie.git"
   },
   "license": "MIT",
-  "dependencies": {
-    "fflate": "^0.8.2"
-  },
   "devDependencies": {
-    "@cto.af/eslint-config": "5.1.13",
-    "@types/node": "22.13.10",
+    "@cto.af/eslint-config": "6.0.3",
+    "@cto.af/monopub": "1.1.0",
+    "@cto.af/unicode-trie": "link:pkg/unicode-trie",
+    "@cto.af/unicode-trie-runtime": "link:pkg/unicode-trie-runtime",
     "c8": "10.1.3",
-    "eslint": "9.22.0",
-    "eslint-plugin-mocha": "10.5.0",
-    "mocha": "11.1.0",
-    "typescript": "5.8.2"
+    "eslint": "9.27.0",
+    "eslint-plugin-mocha": "11.0.0",
+    "mocha": "11.4.0",
+    "typescript": "5.8.3"
   },
-  "packageManager": "pnpm@10.6.4",
+  "packageManager": "pnpm@10.11.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

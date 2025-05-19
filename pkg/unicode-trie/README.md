@@ -22,29 +22,43 @@ and flattened trie, which is then used at runtime to lookup the necessary
 data.  According to my own tests, this is generally at least 50% faster
 than binary search, with not too much additional memory required.
 
+## Installation
+
+    npm install @cto.af/unicode-trie
+
 ## Building a Trie
 
-Use the `@cto.af/unicode-trie` package in the [unicode-trie](pkg/unicode-trie)
-directory to build a trie module.
+Unicode Tries are generally precompiled from data in the Unicode database
+for faster runtime performance.  To build a Unicode Trie, use the
+`UnicodeTrieBuilder` class.
+
+```js
+import {writeFile} from '@cto.af/unicode-trie/file';
+// This will download a local copy of LineBreak.txt, parse it, and add the
+// first field to the trie for each range of characters.
+await writeFile('LineBreak.txt', {
+  // This is the default transform.
+  transform(lineBreak) { return lineBreak };
+});
+```
+
+You can also pass in string values to `set` and `setRange`:
+
+```js
+import {UnicodeTrieBuilder} from '@cto.af/unicode-trie/builder';
+const t = new UnicodeTrieBuilder('XX', 'ER');
+t.set(0x4567, 'FOO')
+t.setRange(0x40, 0xe7, 'BAR')
+```
+
+The intent is that you might use a small number of strings, such as the names
+of Unicode property values.  These strings are converted to small integers,
+and the mapping is stored into the compressed trie.
 
 ## Using a precompiled Trie
 
-Use the `@cto.af/unicode-trie-runtime` package in the
-[unicode-trie-runtime](pkg/unicode-trie-runtime) directory to load a trie into
-memory at runtime.
-
-## Example usage
-
-There is an example in the [examples](examples/) directory showing how to parse
-a sample UCD data file, create a trie, and use it at runtime.  To run it:
-
-```sh
-cd examples
-# Create trie in lineBreak.js
-./genLineBreak.js
-# Get the Line_Break property of codePoint U+000A, which is "LF"
-./getLineBreak.js 000a
-```
+Use the `@cto.af/unicode-trie-runtime' package to load the precompiled trie
+into memory.
 
 ## License
 

@@ -1,0 +1,4 @@
+linkWorkspacePackages: true
+includeWorkspaceRoot: false
+packages:
+  - pkg/*

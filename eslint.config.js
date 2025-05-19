@@ -1,9 +1,30 @@
 import es6 from '@cto.af/eslint-config/es6.js';
-import mocha from '@cto.af/eslint-config/mocha.js';
+import globals from '@cto.af/eslint-config/globals.js';
+import mocha from 'eslint-plugin-mocha';
 
 export default [
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/coverage/**',
+    ],
+  },
   ...es6,
-  ...mocha,
+  {
+    files: [
+      'pkg/*/test/**/*.test.js',
+    ],
+    languageOptions: {
+      globals: globals.mocha,
+    },
+    plugins: {
+      mocha,
+    },
+    rules: {
+      ...mocha.configs.recommended.rules,
+      'mocha/no-mocha-arrows': 'off',
+    },
+  },
   {
     files: ['**/*.js'],
     rules: {
