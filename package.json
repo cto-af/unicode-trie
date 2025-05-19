@@ -37,7 +37,7 @@
   "license": "MIT",
   "devDependencies": {
     "@cto.af/eslint-config": "6.0.3",
-    "@cto.af/monopub": "1.1.0",
+    "@cto.af/monopub": "1.2.0",
     "@cto.af/unicode-trie": "link:pkg/unicode-trie",
     "@cto.af/unicode-trie-runtime": "link:pkg/unicode-trie-runtime",
     "c8": "10.1.3",
