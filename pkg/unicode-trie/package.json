@@ -59,7 +59,7 @@
     "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@cto.af/unicode-trie-runtime": "2.0.2"
+    "@cto.af/unicode-trie-runtime": "3.0.0"
   },
   "packageManager": "pnpm@10.11.0",
   "engines": {
