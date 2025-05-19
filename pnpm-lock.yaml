@@ -55,7 +55,7 @@ importers:
         specifier: 6.0.3
         version: 6.0.3(eslint@9.27.0)(typescript@5.8.3)
       '@cto.af/unicode-trie-runtime':
-        specifier: link:../unicode-trie-runtime
+        specifier: 3.0.0
         version: link:../unicode-trie-runtime
       '@types/node':
         specifier: 22.15.19
@@ -995,8 +995,8 @@ packages:
     resolution: {integrity: sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q==}
     engines: {node: '>=10'}
 
-  tapable@2.2.1:
-    resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
+  tapable@2.2.2:
+    resolution: {integrity: sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==}
     engines: {node: '>=6'}
 
   test-exclude@7.0.1:
@@ -1474,7 +1474,7 @@ snapshots:
   enhanced-resolve@5.18.1:
     dependencies:
       graceful-fs: 4.2.11
-      tapable: 2.2.1
+      tapable: 2.2.2
 
   entities@4.5.0: {}
 
@@ -2026,7 +2026,7 @@ snapshots:
     dependencies:
       has-flag: 4.0.0
 
-  tapable@2.2.1: {}
+  tapable@2.2.2: {}
 
   test-exclude@7.0.1:
     dependencies:
