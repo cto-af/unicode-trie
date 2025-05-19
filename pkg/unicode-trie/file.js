@@ -108,7 +108,7 @@ export async function writeFile(dbName, opts = {}) {
     }
     const old = await import(fn);
     ({etag, lastModified} = old);
-    log.debug('Retrieved from old file: %o', {etag, lastModified})
+    log.debug('Retrieved from old file: %o', {etag, lastModified});
   } catch (e) {
     // If file doesn't exist, we have to run.
     if (!errCode(e, 'ENOENT')) {
