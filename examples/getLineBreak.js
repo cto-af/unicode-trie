@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-import {LineBreak} from './lineBreak.js';
+// Won't be there in CI
+// eslint-disable-next-line n/no-missing-import
+import {LineBreak} from './LineBreak.js';
 
 for (const num of process.argv.slice(2)) {
   const n = parseInt(num, 16);

@@ -5,28 +5,35 @@ import mocha from 'eslint-plugin-mocha';
 export default [
   {
     ignores: [
-      '**/*.d.ts',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/docs/**',
     ],
   },
   ...es6,
   {
-    files: ['**/*.js'],
-    rules: {
-      'n/prefer-global/buffer': 'off',
-      'prefer-named-capture-group': 'off',
-    },
-  },
-  {
-    files: ['test/*.js'],
-    plugins: {
-      mocha,
-    },
+    files: [
+      'pkg/*/test/**/*.test.js',
+    ],
     languageOptions: {
       globals: globals.mocha,
+    },
+    plugins: {
+      mocha,
     },
     rules: {
       ...mocha.configs.recommended.rules,
       'mocha/no-mocha-arrows': 'off',
+    },
+  },
+  {
+    files: ['**/*.js'],
+    rules: {
+      // Don't want to import from Buffer, so that this code can test for
+      // Buffer being defined at runtime, and fall back on worse code in the
+      // browser.
+      'n/prefer-global/buffer': 'off',
+      'prefer-named-capture-group': 'off',
     },
   },
 ];

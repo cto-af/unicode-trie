@@ -1,4 +1,4 @@
-# @cto.af/unicode-trie
+# @cto.af/unicode-trie-runtime
 
 A data structure for fast Unicode character metadata lookup, ported from ICU
 This version was copied from https://github.com/foliojs/unicode-trie and
@@ -22,28 +22,30 @@ and flattened trie, which is then used at runtime to lookup the necessary
 data.  According to my own tests, this is generally at least 50% faster
 than binary search, with not too much additional memory required.
 
+## Installation
+
+    npm install @cto.af/unicode-trie-runtime
+
 ## Building a Trie
 
-Use the `@cto.af/unicode-trie` package in the [unicode-trie](pkg/unicode-trie)
-directory to build a trie module.
+Use the `@cto.af/unicode-trie` package to build a trie module.
 
 ## Using a precompiled Trie
 
-Use the `@cto.af/unicode-trie-runtime` package in the
-[unicode-trie-runtime](pkg/unicode-trie-runtime) directory to load a trie into
-memory at runtime.
+Once you've built a precompiled trie, you can load it into the
+`UnicodeTrie` class, which is a readonly representation of the
+trie.  From there, you can lookup values.
 
-## Example usage
+```js
+import {UnicodeTrie} from '@cto.af/unicode-trie-runtime';
+import fs from 'node:fs'
 
-There is an example in the [examples](examples/) directory showing how to parse
-a sample UCD data file, create a trie, and use it at runtime.  To run it:
+// load serialized trie from binary file
+const data = fs.readFileSync('data.trie');
+const trie = new UnicodeTrie(data);
 
-```sh
-cd examples
-# Create trie in lineBreak.js
-./genLineBreak.js
-# Get the Line_Break property of codePoint U+000A, which is "LF"
-./getLineBreak.js 000a
+// lookup a value
+trie.get(0x4567); // => 99 or 'FOO' (if a string was stored)
 ```
 
 ## License

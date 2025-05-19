@@ -13,11 +13,12 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: pnpm
       - run: pnpm i -r
       - run: npm run build
-      - run: npm publish --access public --provenance
+      - run: npm pkg delete devDependencies scripts pnpm --workspaces
+      - run: npm publish --access public --provenance --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

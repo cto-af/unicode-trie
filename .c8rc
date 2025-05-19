@@ -4,8 +4,8 @@
     "lcov"
   ],
   "exclude": [
-    "test/**",
-    "node_modules/**",
-    ".mocharc.cjs"
+    "**/test/**",
+    "**/node_modules/**",
+    "**/.mocharc.cjs"
   ]
 }

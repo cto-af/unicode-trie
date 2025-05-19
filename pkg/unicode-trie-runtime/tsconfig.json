@@ -108,6 +108,7 @@
   },
   "include": [
     "index.js",
-    "builder.js"
+    "builder.js",
+    "file.js",
   ],
 }

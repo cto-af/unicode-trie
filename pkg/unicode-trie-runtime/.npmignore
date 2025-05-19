@@ -1,0 +1,4 @@
+.mocharc.cjs
+docs/
+node_modules/
+typedoc.config.cjs

@@ -16,15 +16,15 @@ import {swap32LE} from './swap.js';
 
 const DECODER = new TextDecoder();
 
-export class UnicodeTrie {
-  /**
-   * @typedef {object} TrieValues
-   * @prop {Int32Array} data
-   * @prop {number} highStart
-   * @prop {number} errorValue
-   * @prop {string[]} [values]
-   */
+/**
+ * @typedef {object} TrieValues
+ * @prop {Int32Array} data
+ * @prop {number} highStart
+ * @prop {number} errorValue
+ * @prop {string[]} [values]
+ */
 
+export class UnicodeTrie {
   /**
    * Creates a trie, either from compressed data or pre-parsed values.
    *
