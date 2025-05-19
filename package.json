@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "types": "pnpm run -r types",
     "examples": "cd examples && node genLineBreak.js",
-    "build": "npm run examples && npm run lint && npm run types && npm run test",
+    "build": "npm run lint && npm run types && npm run test && npm run docs",
     "version": "monopub version && pnpm run --sequential --if-present -r version"
   },
   "keywords": [

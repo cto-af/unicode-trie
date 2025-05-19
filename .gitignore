@@ -1,5 +1,6 @@
 coverage/
 examples/LineBreak.js
+examples/LineBreak.txt
 node_modules/
 pkg/*/docs
 pkg/*/node_modules
