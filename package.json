@@ -8,6 +8,7 @@
     "pkg/*"
   ],
   "scripts": {
+    "clean": "rm -rf coverage examples/LineBreak.js examples/LineBreak.txt && pnpm run -r clean",
     "docs": "pnpm run -r docs",
     "test": "c8 pnpm run -r test",
     "lint": "eslint .",
