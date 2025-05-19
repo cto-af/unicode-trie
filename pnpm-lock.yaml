@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@cto.af/unicode-trie-runtime': link:pkg/unicode-trie-runtime
+
 importers:
 
   .:
@@ -44,6 +47,9 @@ importers:
       '@cto.af/ucd':
         specifier: 1.0.4
         version: 1.0.4
+      '@cto.af/unicode-trie-runtime':
+        specifier: link:../unicode-trie-runtime
+        version: link:../unicode-trie-runtime
       '@cto.af/utils':
         specifier: 1.1.0
         version: 1.1.0
@@ -54,9 +60,6 @@ importers:
       '@cto.af/eslint-config':
         specifier: 6.0.3
         version: 6.0.3(eslint@9.27.0)(typescript@5.8.3)
-      '@cto.af/unicode-trie-runtime':
-        specifier: 3.0.0
-        version: link:../unicode-trie-runtime
       '@types/node':
         specifier: 22.15.19
         version: 22.15.19
