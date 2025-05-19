@@ -1,6 +1,6 @@
 {
   "name": "@cto.af/unicode-trie",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Builder code for unicode tries",
   "type": "module",
   "exports": {
@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@cto.af/eslint-config": "6.0.3",
-    "@cto.af/unicode-trie-runtime": "3.0.1",
+    "@cto.af/unicode-trie-runtime": "3.0.2",
     "@types/node": "22.15.19",
     "c8": "10.1.3",
     "eslint": "9.27.0",
@@ -59,7 +59,7 @@
     "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@cto.af/unicode-trie-runtime": "3.0.1"
+    "@cto.af/unicode-trie-runtime": "3.0.2"
   },
   "packageManager": "pnpm@10.11.0",
   "engines": {
