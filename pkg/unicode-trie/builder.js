@@ -154,8 +154,8 @@ const ENCODER = new TextEncoder();
  *   version.
  * @prop {string=} [date] Date the source file was created.  Can be parsed
  *   from most UCD files.
- * @prop {string=} [etag] Etag from the HTTP GET response.
- * @prop {string=} [lastModified] Date from the HTTP GET response.
+ * @prop {object=} [etag] Etags from the HTTP GET responses.
+ * @prop {object=} [lastModified] Dates from the HTTP GET responses.
  * @prop {string} [name="Trie"] Name exported from the module with the Trie
  *   instance.
  * @prop {string} [quot='"'] Quote.  Should be single or double.
@@ -1208,10 +1208,18 @@ export class UnicodeTrieBuilder {
       ret += `export const inputFileDate = new Date(${q}${new Date(date).toISOString()}${q})${s}\n`;
     }
     if (etag) {
-      ret += `export const etag = ${q}${etag.replaceAll(q, `\\${q}`)}${q}${s}\n`;
+      ret += 'export const etag = {\n';
+      for (const [k, v] of Object.entries(etag)) {
+        ret += `  ${q}${k}${q}: ${q}${v.replaceAll(q, `\\${q}`)}${q},\n`;
+      }
+      ret += `}${s}\n`;
     }
     if (lastModified) {
-      ret += `export const lastModified = ${q}${lastModified.replaceAll(q, `\\${q}`)}${q}${s}\n`;
+      ret += 'export const lastModified = {\n';
+      for (const [k, v] of Object.entries(lastModified)) {
+        ret += `  ${q}${k}${q}: ${q}${v.replaceAll(q, `\\${q}`)}${q},\n`;
+      }
+      ret += `}${s}\n`;
     }
 
     /* eslint-disable @stylistic/newline-per-chained-call */
