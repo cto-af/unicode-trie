@@ -36,4 +36,10 @@ export default [
       'prefer-named-capture-group': 'off',
     },
   },
+  {
+    files: ['examples/getLineBreak.js'],
+    linterOptions: {
+      reportUnusedDisableDirectives: 'off',
+    },
+  },
 ];
