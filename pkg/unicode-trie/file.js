@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import {UCD} from '@cto.af/ucd';
 import {UnicodeTrieBuilder} from './builder.js';
 import {errCode} from '@cto.af/utils';
+import {fileURLToPath} from 'node:url';
 import {getLog} from '@cto.af/log';
 
 const DAYS30 = 30 * 24 * 60 * 60 * 1000;
@@ -27,15 +28,21 @@ const DAYS30 = 30 * 24 * 60 * 60 * 1000;
 
 /**
  * @typedef {object} DirOptions
- * @prop {string} [dir] Directory to read from/write to.
- * @prop {number} [frequency=DAYS30] How often to check for updates, in ms.
- * @prop {TrieTransform} [transform] Transform fields from UCD into trie
- *   entries.  If not specified, uses the first field.
  * @prop {UnicodeTrieBuilder} [builder] If needed, a custom builder instance.
- * @prop {number|string} [initialValue='XX'] Default value in builder, if no
- *   builder specified.
+ * @prop {string} [className] Name of the exported class in the module file.
+ *   Defaults to the name of the (first) database file without the ".txt"
+ *   suffix.
+ * @prop {string|URL} [dir] Directory to read from/write to.  Defaults to
+ *   cacheDir, then CWD.
  * @prop {number|string} [errorValue='ER'] Error value for out of range
  *   inputs, if no builder specified.
+ * @prop {number} [frequency=DAYS30] How often to check for updates, in ms.
+ * @prop {number|string} [initialValue='XX'] Default value in builder, if no
+ *   builder specified.
+ * @prop {TrieTransform} [transform] Transform fields from UCD into trie
+ *   entries.  If not specified, uses the first field.
+ * @prop {string} [out] Output file.  Defaults to the name of the (first)
+ *   database, minus ".txt", plus ".js".
  * @prop {UCD} [ucd] If needed, a custom UCD instance.
  * @prop {boolean} [verbose] Verbose logging.
  */
@@ -48,6 +55,13 @@ const DAYS30 = 30 * 24 * 60 * 60 * 1000;
  */
 
 /**
+ * @typedef {object} FileTransformer
+ * @prop {string} name File name from the UCD database, including '.txt'.
+ * @prop {TrieTransform} [transform] If not specified, falls back on transform
+ *   in options, then the default.
+ */
+
+/**
  * Create filename for the given options.
  *
  * @param {string|undefined} name
@@ -55,7 +69,11 @@ const DAYS30 = 30 * 24 * 60 * 60 * 1000;
  * @returns {string}
  */
 function fileName(name, opts) {
-  return path.join(opts?.dir ?? process.cwd(), `${name ?? 'trie'}.js`);
+  let dir = opts?.dir ?? opts?.cacheDir ?? process.cwd();
+  if (dir instanceof URL) {
+    dir = fileURLToPath(dir);
+  }
+  return path.join(dir, `${name}.js`);
 }
 
 /**
@@ -81,99 +99,133 @@ function isPoints(f) {
 
 /**
  *
- * @param {string} dbName File name from the UCD database, including '.txt'.
+ * @param {Field} firstValue
+ * @returns {number|string|null}
+ */
+function defaultTransform(firstValue) {
+  switch (typeof firstValue) {
+    case 'string':
+    case 'number':
+      return firstValue;
+    default:
+      return null;
+  }
+}
+
+/**
+ *
+ * @param {string|FileTransformer[]} db File name from the UCD database,
+ *   including '.txt', or list of transforms.
  * @param {FileOptions} [opts]
  * @returns {Promise<void>}
  */
-export async function writeFile(dbName, opts = {}) {
+export async function writeFile(db, opts = {}) {
   const log = getLog({logLevel: opts.verbose ? 1 : 0});
-  const {errorValue, frequency, initialValue} = {
+
+  if (typeof db === 'string') {
+    db = [{name: db}];
+  }
+  if (!Array.isArray(db) || db.length < 1) {
+    throw new TypeError('Invalid db type');
+  }
+  const baseName = path.parse(db[0].name).name;
+  const {className, errorValue, frequency, initialValue, out, transform} = {
+    className: baseName,
     errorValue: 'ER',
     frequency: DAYS30,
     initialValue: 'XX',
+    out: fileName(baseName, opts),
+    transform: defaultTransform,
     ...opts,
   };
-  const {name} = path.parse(dbName);
-  const fn = fileName(name, opts);
+
+  let {builder, ucd} = opts;
+  if (!builder) {
+    builder = new UnicodeTrieBuilder(initialValue, errorValue);
+  }
+  if (!ucd) {
+    ucd = await UCD.create({...opts});
+  }
   const now = new Date();
-  let etag = undefined;
-  let lastModified = undefined;
+
+  let etag = Object.create(null);
+  let lastModified = Object.create(null);
+
   try {
-    log.debug('Checking stats for "%s"', fn);
-    const stats = await fs.stat(fn);
+    log.debug('Checking stats for "%s"', out);
+    const stats = await fs.stat(out);
     if ((stats.mtimeMs + frequency) > now.getTime()) {
       log.debug('Last modified %s, no need to run.', new Date(stats.mtimeMs).toISOString());
       // No need to run.
       return;
     }
-    const old = await import(fn);
+    const old = await import(out);
     ({etag, lastModified} = old);
-    log.debug('Retrieved from old file: %o', {etag, lastModified});
+    if (typeof etag !== 'object') {
+      etag = Object.create(null);
+    }
+    if (typeof lastModified !== 'object') {
+      lastModified = Object.create(null);
+    }
   } catch (e) {
     // If file doesn't exist, we have to run.
     if (!errCode(e, 'ENOENT')) {
       throw e;
     }
-    log.debug('Output file does not exist.  Creating.');
+    log.debug('Output file does not exist.  Creating.', out);
   }
 
-  let {builder, transform, ucd} = opts;
-  if (!builder) {
-    builder = new UnicodeTrieBuilder(initialValue, errorValue);
-  }
-  if (!ucd) {
-    ucd = await UCD.create({
+  for (const {name, transform: xform} of db) {
+    const ucdFile = await ucd.parse(name, {
       ...opts,
+      etag: etag[name],
+      lastModified: lastModified[name],
     });
-  }
-
-  const ucdFile = await ucd.parse(dbName, {
-    ...opts,
-    etag,
-    lastModified,
-  });
-  log.debug('HTTP Status %d', ucdFile.status);
-  if (ucdFile.status === 304) {
-    log.debug('Touching %s to remember last time we checked', fn);
-    await fs.utimes(fn, now, now);
-    return;
-  }
-  if (!ucdFile.parsed) {
-    throw new Error('Unexpected state, no parsed entries');
-  }
-
-  if (!transform) {
-    transform = first => first?.toString() ?? null;
-  }
-
-  for (const {fields} of ucdFile.parsed.entries) {
-    const [first, ...vals] = fields;
-    if (typeof first === 'string') {
-      throw new Error('First field not codepoints');
+    log.debug('HTTP Status %d', ucdFile.status);
+    if (ucdFile.status === 304) {
+      // OK to assume all database files are updated at once.
+      log.debug('Touching %s to remember last time we checked', out);
+      await fs.utimes(out, now, now);
+      return;
     }
-    const t = transform(...vals);
-    if (t == null || first == null) {
-      continue;
+    if (ucdFile.status !== 200) {
+      throw new Error(`HTTP error: ${ucdFile.status}`);
     }
-    if (isRange(first)) {
-      builder.setRange(first.range[0], first.range[1], t, true);
-    } else if (isPoints(first)) {
-      for (const p of first.points) {
-        builder.set(p, t);
+    if (!ucdFile.parsed) {
+      throw new Error('Unexpected state, no parsed entries');
+    }
+    etag[name] = ucdFile.etag;
+    lastModified[name] = ucdFile.lastModified;
+
+    const yform = xform ?? transform;
+    for (const {fields} of ucdFile.parsed.entries) {
+      const [first, ...vals] = fields;
+      if (typeof first === 'string') {
+        throw new Error('First field not codepoints');
       }
-    } else {
-      throw new Error(`Invalid codepoints: ${JSON.stringify(first)}`);
+      const t = yform(...vals);
+      if (t == null || first == null) {
+        continue;
+      }
+      if (isRange(first)) {
+        builder.setRange(first.range[0], first.range[1], t, true);
+      } else if (isPoints(first)) {
+        for (const p of first.points) {
+          builder.set(p, t);
+        }
+      } else {
+        throw new Error(`Invalid codepoints: ${JSON.stringify(first)}`);
+      }
     }
   }
-
-  log.debug('Writing "%s"', fn);
+  log.debug('Writing "%s"', out);
   await fs.writeFile(
-    fn,
+    out,
     builder.toModule({
       ...opts,
-      name,
-      etag: ucdFile.etag,
-      lastModified: ucdFile.lastModified,
+      name: className,
+      etag,
+      lastModified,
     }),
     'utf8'
   );
