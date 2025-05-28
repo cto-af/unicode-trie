@@ -102,14 +102,14 @@ function isPoints(f) {
 }
 
 /**
+ * Default transform.  Return the first value, if it's a string.
  *
  * @param {Field} firstValue
- * @returns {number|string|null}
+ * @returns {string|null}
  */
 function defaultTransform(firstValue) {
   switch (typeof firstValue) {
     case 'string':
-    case 'number':
       return firstValue;
     default:
       return null;
