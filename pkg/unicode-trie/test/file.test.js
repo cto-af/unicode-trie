@@ -78,6 +78,18 @@ describe('writeFile', () => {
     }), /First field not codepoints/);
   });
 
+  it('allows direct modification of the builder', async() => {
+    await rmSafe(temp);
+    let count = 0;
+    await writeFile([{transform(b) {
+      assert.equal(b.constructor.name, 'UnicodeTrieBuilder');
+      count++;
+    }}], {
+      out: temp,
+    });
+    assert.equal(count, 1);
+  });
+
   it('handles bad inputs', async() => {
     await assert.rejects(() => writeFile(0));
     await assert.rejects(() => writeFile([]));

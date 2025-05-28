@@ -25,7 +25,19 @@ const DAYS30 = 30 * 24 * 60 * 60 * 1000;
 /**
  * Convert a set of fields into a trie entry.
  *
- * @typedef {(...fields: Field[]) => number | string | null} TrieTransform
+ * @typedef {(...fields: Field[]) => number | string | null} FieldTransform
+ */
+
+/**
+ * Modify a builder directly.
+ *
+ * @typedef {(builder: UnicodeTrieBuilder) =>
+ *   number | string | null} BuilderTransform
+ */
+
+/**
+ * BuilderTransform if name is not specified, otherwise FieldTransform
+ * @typedef {BuilderTransform|FieldTransform} TrieTransform
  */
 
 /**
@@ -41,7 +53,7 @@ const DAYS30 = 30 * 24 * 60 * 60 * 1000;
  * @prop {number} [frequency=DAYS30] How often to check for updates, in ms.
  * @prop {number|string} [initialValue='XX'] Default value in builder, if no
  *   builder specified.
- * @prop {TrieTransform} [transform] Transform fields from UCD into trie
+ * @prop {FieldTransform} [transform] Transform fields from UCD into trie
  *   entries.  If not specified, uses the first field.
  * @prop {string} [out] Output file.  Defaults to the name of the (first)
  *   database, minus ".txt", plus ".js".
@@ -57,10 +69,18 @@ const DAYS30 = 30 * 24 * 60 * 60 * 1000;
  */
 
 /**
- * @typedef {object} FileTransformer
+ * @typedef {object} FieldTransformer
  * @prop {string} name File name from the UCD database, including '.txt'.
- * @prop {TrieTransform} [transform] If not specified, falls back on transform
+ * @prop {FieldTransform} [transform] If not specified, falls back on transform
  *   in options, then the default.
+ */
+/**
+ * @typedef {object} NullTransformer
+ * @prop {BuilderTransform} transform Transform with no name, allowing modifying
+ *   the builder directly.
+ */
+/**
+ * @typedef {FieldTransformer|NullTransformer} FileTransformer
  */
 
 /**
@@ -102,6 +122,15 @@ function isPoints(f) {
 }
 
 /**
+ * Is this a FieldTransformer?
+ * @param {FileTransformer} f
+ * @returns {f is FieldTransformer}
+ */
+function isFieldTransformer(f) {
+  return Object.prototype.hasOwnProperty.call(f, 'name');
+}
+
+/**
  * Default transform.  Return the first value, if it's a string.
  *
  * @param {Field} firstValue
@@ -132,7 +161,8 @@ export async function writeFile(db, opts = {}) {
   if (!Array.isArray(db) || db.length < 1) {
     throw new TypeError('Invalid db type');
   }
-  const baseName = path.parse(db[0].name).name;
+  const firstName = db.find(x => isFieldTransformer(x))?.name ?? 'trie';
+  const baseName = path.parse(firstName).name;
   const {className, errorValue, frequency, initialValue, out, transform} = {
     className: baseName,
     errorValue: 'ER',
@@ -182,7 +212,12 @@ export async function writeFile(db, opts = {}) {
     ucd = await UCD.create({...opts, alwaysParse});
   }
 
-  for (const {name, transform: xform} of db) {
+  for (const file of db) {
+    if (!isFieldTransformer(file)) {
+      file.transform?.(builder);
+      continue;
+    }
+    const {name, transform: xform} = file;
     const ucdFile = await ucd.parse(name, {
       ...opts,
       etag: etag[name],
