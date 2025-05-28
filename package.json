@@ -8,7 +8,7 @@
     "pkg/*"
   ],
   "scripts": {
-    "clean": "rm -rf coverage examples/LineBreak.js examples/LineBreak.txt && pnpm run -r clean",
+    "clean": "rm -rf coverage examples/LineBreak.js && pnpm run -r clean",
     "docs": "pnpm run -r docs",
     "test": "c8 pnpm run -r test",
     "lint": "eslint .",
@@ -42,8 +42,8 @@
     "@cto.af/unicode-trie-runtime": "link:pkg/unicode-trie-runtime",
     "c8": "10.1.3",
     "eslint": "9.27.0",
-    "eslint-plugin-mocha": "11.0.0",
-    "mocha": "11.4.0",
+    "eslint-plugin-mocha": "11.1.0",
+    "mocha": "11.5.0",
     "typescript": "5.8.3"
   },
   "packageManager": "pnpm@10.11.0",

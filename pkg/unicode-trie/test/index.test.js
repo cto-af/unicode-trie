@@ -1,4 +1,3 @@
-/* eslint-disable @stylistic/max-len */
 /* eslint-disable @stylistic/no-multi-spaces */
 /* eslint-disable prefer-destructuring */
 import {UnicodeTrie} from '@cto.af/unicode-trie-runtime';
@@ -181,8 +180,10 @@ describe('unicode trie', () => {
         [0x2f800,  0x2fedc,  0x7a,   1],
         [0x72,     0xdd,     3,      1],
         [0xdd,     0xde,     4,      0],
-        [0x201,    0x240,    6,      1],  // 3 consecutive blocks with the same pattern but
-        [0x241,    0x280,    6,      1],  // Discontiguous value ranges, testing utrie2_enum()
+        // 3 consecutive blocks with the same pattern but
+        [0x201,    0x240,    6,      1],
+        // Discontiguous value ranges, testing utrie2_enum()
+        [0x241,    0x280,    6,      1],
         [0x281,    0x2c0,    6,      1],
         [0x2f987,  0x2fa98,  5,      1],
         [0x2f777,  0x2f883,  0,      1],

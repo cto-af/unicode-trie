@@ -1,10 +1,12 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import {UCD} from '@cto.af/ucd';
+import {UCD, isSuccess} from '@cto.af/ucd';
 import {UnicodeTrieBuilder} from './builder.js';
+import {strict as assert} from 'node:assert';
 import {errCode} from '@cto.af/utils';
 import {fileURLToPath} from 'node:url';
 import {getLog} from '@cto.af/log';
+import {touch} from './fsUtils.js';
 
 const DAYS30 = 30 * 24 * 60 * 60 * 1000;
 
@@ -64,7 +66,7 @@ const DAYS30 = 30 * 24 * 60 * 60 * 1000;
 /**
  * Create filename for the given options.
  *
- * @param {string|undefined} name
+ * @param {string} name
  * @param {FileOptions} opts
  * @returns {string}
  */
@@ -72,6 +74,8 @@ function fileName(name, opts) {
   let dir = opts?.dir ?? opts?.cacheDir ?? process.cwd();
   if (dir instanceof URL) {
     dir = fileURLToPath(dir);
+  } else if (typeof dir !== 'string') {
+    dir = dir.toString('utf8');
   }
   return path.join(dir, `${name}.js`);
 }
@@ -117,7 +121,7 @@ function defaultTransform(firstValue) {
  * @param {string|FileTransformer[]} db File name from the UCD database,
  *   including '.txt', or list of transforms.
  * @param {FileOptions} [opts]
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
 export async function writeFile(db, opts = {}) {
   const log = getLog({logLevel: opts.verbose ? 1 : 0});
@@ -143,13 +147,11 @@ export async function writeFile(db, opts = {}) {
   if (!builder) {
     builder = new UnicodeTrieBuilder(initialValue, errorValue);
   }
-  if (!ucd) {
-    ucd = await UCD.create({...opts});
-  }
   const now = new Date();
 
   let etag = Object.create(null);
   let lastModified = Object.create(null);
+  let alwaysParse = false;
 
   try {
     log.debug('Checking stats for "%s"', out);
@@ -157,7 +159,7 @@ export async function writeFile(db, opts = {}) {
     if ((stats.mtimeMs + frequency) > now.getTime()) {
       log.debug('Last modified %s, no need to run.', new Date(stats.mtimeMs).toISOString());
       // No need to run.
-      return;
+      return out;
     }
     const old = await import(out);
     ({etag, lastModified} = old);
@@ -173,6 +175,11 @@ export async function writeFile(db, opts = {}) {
       throw e;
     }
     log.debug('Output file does not exist.  Creating.', out);
+    alwaysParse = true;
+  }
+
+  if (!ucd) {
+    ucd = await UCD.create({...opts, alwaysParse});
   }
 
   for (const {name, transform: xform} of db) {
@@ -185,15 +192,12 @@ export async function writeFile(db, opts = {}) {
     if (ucdFile.status === 304) {
       // OK to assume all database files are updated at once.
       log.debug('Touching %s to remember last time we checked', out);
-      await fs.utimes(out, now, now);
-      return;
+      return touch(out, now);
     }
-    if (ucdFile.status !== 200) {
-      throw new Error(`HTTP error: ${ucdFile.status}`);
-    }
-    if (!ucdFile.parsed) {
-      throw new Error('Unexpected state, no parsed entries');
-    }
+
+    // Would have thrown an error in ucd if not 200 or 304, and 304 is handled
+    // above.
+    assert(isSuccess(ucdFile));
     etag[name] = ucdFile.etag;
     lastModified[name] = ucdFile.lastModified;
 
@@ -229,4 +233,5 @@ export async function writeFile(db, opts = {}) {
     }),
     'utf8'
   );
+  return out;
 }

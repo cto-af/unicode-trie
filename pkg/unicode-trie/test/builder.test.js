@@ -2,7 +2,7 @@ import {UnicodeTrieBuilder} from '../builder.js';
 import assert from 'node:assert';
 import fs from 'node:fs';
 
-const temp = new URL(`./test-module-${process.pid}.js`, import.meta.url);
+const temp = new URL(`./test-module-builder-${process.pid}.js`, import.meta.url);
 
 describe('unicode trie builder', () => {
   after(() => {
