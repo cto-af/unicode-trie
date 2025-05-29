@@ -183,6 +183,12 @@ export async function writeFile(db, opts = {}) {
   let lastModified = Object.create(null);
   let alwaysParse = false;
 
+  /** @type {number[]|undefined} */
+  let version = undefined;
+
+  /** @type {Date|undefined} */
+  let inputFileDate = undefined;
+
   try {
     log.debug('Checking stats for "%s"', out);
     const stats = await fs.stat(out);
@@ -236,6 +242,10 @@ export async function writeFile(db, opts = {}) {
     etag[name] = ucdFile.etag;
     lastModified[name] = ucdFile.lastModified;
 
+    if (!version) {
+      ({version, date: inputFileDate} = ucdFile.parsed);
+    }
+
     const yform = xform ?? transform;
     for (const {fields} of ucdFile.parsed.entries) {
       const [first, ...vals] = fields;
@@ -265,6 +275,8 @@ export async function writeFile(db, opts = {}) {
       name: className,
       etag,
       lastModified,
+      version,
+      date: inputFileDate,
     }),
     'utf8'
   );

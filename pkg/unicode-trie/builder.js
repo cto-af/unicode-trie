@@ -150,18 +150,18 @@ const ENCODER = new TextEncoder();
 
 /**
  * @typedef {object} ModuleOptions
- * @prop {string=} [version] Version of the source file, usually the Unicode
- *   version.
- * @prop {string=} [date] Date the source file was created.  Can be parsed
+ * @prop {string|number[]} [version] Version of the source file, usually the
+ *   Unicode version.
+ * @prop {string|Date} [date] Date the source file was created.  Can be parsed
  *   from most UCD files.
- * @prop {object=} [etag] Etags from the HTTP GET responses.
- * @prop {object=} [lastModified] Dates from the HTTP GET responses.
+ * @prop {string} [etag] Etags from the HTTP GET responses.
+ * @prop {string} [lastModified] Dates from the HTTP GET responses.
  * @prop {string} [name="Trie"] Name exported from the module with the Trie
  *   instance.
  * @prop {string} [quot='"'] Quote.  Should be single or double.
  * @prop {string} [semi=";"] Include semicolons? Pass in "" to disable.
- * @prop {string} [pkg="@cto.af/unicode-trie"] Package name for this
- *   package.  Mostly useful for internal tooling.
+ * @prop {string} [pkg="@cto.af/unicode-trie-runtime"] Package name for the
+ *   runtime. Mostly useful for internal tooling.
  */
 
 export class UnicodeTrieBuilder {
@@ -1202,7 +1202,8 @@ export class UnicodeTrieBuilder {
     const buf = this.toBuffer();
     let ret = `import {UnicodeTrie} from ${q}${pkg}${q}${s}\n\n`;
     if (version) {
-      ret += `export const version = ${q}${version}${q}${s}\n`;
+      const ver = (typeof version === 'string') ? version : version.join('.');
+      ret += `export const version = ${q}${ver}${q}${s}\n`;
     }
     if (date) {
       ret += `export const inputFileDate = new Date(${q}${new Date(date).toISOString()}${q})${s}\n`;
