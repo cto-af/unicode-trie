@@ -1,6 +1,6 @@
 {
   "name": "@cto.af/unicode-trie-runtime",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "Runtime code for unicode-trie files.",
   "type": "module",
   "main": "index.js",
