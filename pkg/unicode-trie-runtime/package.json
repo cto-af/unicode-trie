@@ -4,6 +4,7 @@
   "description": "Runtime code for unicode-trie files.",
   "type": "module",
   "main": "index.js",
+  "types": "./types/index.d.ts",
   "scripts": {
     "clean": "rm -rf coverage docs types",
     "docs": "typedoc",
