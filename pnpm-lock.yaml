@@ -45,14 +45,14 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       '@cto.af/ucd':
-        specifier: 1.1.1
-        version: 1.1.1
+        specifier: 1.1.2
+        version: 1.1.2
       '@cto.af/unicode-trie-runtime':
         specifier: link:../unicode-trie-runtime
         version: link:../unicode-trie-runtime
       '@cto.af/utils':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: 1.2.1
+        version: 1.2.1
       fflate:
         specifier: ^0.8.2
         version: 0.8.2
@@ -114,10 +114,6 @@ packages:
     resolution: {integrity: sha512-ol24X+lWVV8bX2ZIxtgrNShurpKV5Woxq1MGyFILMgY2hKqyFuCh6vLCdlQcJ6ERiflp1eR3xE7p/PmRjbTKpg==}
     engines: {node: '>=20'}
 
-  '@cto.af/log@1.0.0':
-    resolution: {integrity: sha512-o0EAo4ruGnDAAL1h5ErYm5w6nFVf2xS0TZudh2YJcwePfEC17yyJ/g6tsEi6CMNVx3mm8iYC2xd8SKjR9m5n3A==}
-    engines: {node: '>=20'}
-
   '@cto.af/log@1.0.1':
     resolution: {integrity: sha512-2rQRsVNOlH5pxu8b2bnkh6nK0XeSqbAz0FWLc7Fg0QterdYwwDDpJ9gN0bQ3FfUc0/F87Mi1GS0xCFPjA0qB6w==}
     engines: {node: '>=20'}
@@ -127,12 +123,12 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  '@cto.af/ucd@1.1.1':
-    resolution: {integrity: sha512-BfS8oQ0OqlAflJsfLkzGDM//PJq6UIOwUIxvIuuf1rgRzzcWXfHOve+fGC0tB9K8MyJf6v9FkGm9xoYWNDv89w==}
+  '@cto.af/ucd@1.1.2':
+    resolution: {integrity: sha512-+G3xdrXA+F8pFySK9x/z84Gj1PeqZ7HkjfeEvJS1elqnw59lh9GHOsH40nOIYDj6G9Jqz/x0XC+0CNU8Pnj9Tg==}
     engines: {node: '>=20'}
 
-  '@cto.af/utils@1.2.0':
-    resolution: {integrity: sha512-un6kJgCIzPaQHRRMbtaUawMHLROAD+A6IdUa88nomc44mf2q1UGSiGWu0WCME2y2Vf42k2bFXPBUGQJOnf8X8w==}
+  '@cto.af/utils@1.2.1':
+    resolution: {integrity: sha512-RSDhDE2Ek2CWoPflsY/yGJybxUUEEHSHFgdJXdMqoSd+h07WhqIRRCtO9yWNXFpkDbiGvs0Pns1P4y5zWa3sjw==}
     engines: {node: '>=20'}
 
   '@eslint-community/eslint-utils@4.7.0':
@@ -193,8 +189,8 @@ packages:
     resolution: {integrity: sha512-4SaFZCNfJqvk/kenHpI8xvN42DMaoycy4PzKc5otHxRswww1kAt82OlBuwRVLofCACCTZEcla2Ydxv8scMXaTg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@gerrit0/mini-shiki@3.6.0':
-    resolution: {integrity: sha512-KaeJvPNofTEZR9EzVNp/GQzbQqkGfjiu6k3CXKvhVTX+8OoAKSX/k7qxLKOX3B0yh2XqVAc93rsOu48CGt2Qug==}
+  '@gerrit0/mini-shiki@3.7.0':
+    resolution: {integrity: sha512-7iY9wg4FWXmeoFJpUL2u+tsmh0d0jcEJHAIzVxl3TG4KL493JNnisdLAILZ77zcD+z3J0keEXZ+lFzUgzQzPDg==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -869,10 +865,6 @@ packages:
   pino-std-serializers@7.0.0:
     resolution: {integrity: sha512-e906FRY0+tV27iq4juKzSYPbUj2do2X2JX4EzSca1631EB2QJQUqGbDuERal7LCtOpxl6x3+nvo9NPZcmjkiFA==}
 
-  pino@9.6.0:
-    resolution: {integrity: sha512-i85pKRCt4qMjZ1+L7sy2Ag4t1atFcdbEt76+7iRJn1g2BvsnRMGu9p8pivl9fs63M2kF/A0OacFZhTub+m/qMg==}
-    hasBin: true
-
   pino@9.7.0:
     resolution: {integrity: sha512-vnMCM6xZTb1WDmLvtG2lE/2p+t9hDEIvTWJsu6FejkE62vB7gDhvzrpFR4Cw2to+9JNQxVnkAKVPA1KPB98vWg==}
     hasBin: true
@@ -880,9 +872,6 @@ packages:
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
-
-  process-warning@4.0.1:
-    resolution: {integrity: sha512-3c2LzQ3rY9d0hc1emcsHhfT9Jwz0cChib/QN89oME2R451w5fy3f0afAhERFZAwrbDU43wk12d0ORBpDVME50Q==}
 
   process-warning@5.0.0:
     resolution: {integrity: sha512-a39t9ApHNx2L4+HBnQKqxxHNs1r7KF+Intd8Q/g1bUh6q0WIp9voPXJ/x0j+ZL45KF1pJd9+q2jLIRMfvEshkA==}
@@ -1142,11 +1131,6 @@ snapshots:
       - supports-color
       - typescript
 
-  '@cto.af/log@1.0.0':
-    dependencies:
-      pino: 9.6.0
-      pino-pretty: 13.0.0
-
   '@cto.af/log@1.0.1':
     dependencies:
       pino: 9.7.0
@@ -1161,12 +1145,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@cto.af/ucd@1.1.1':
+  '@cto.af/ucd@1.1.2':
     dependencies:
-      '@cto.af/log': 1.0.0
-      '@cto.af/utils': 1.2.0
+      '@cto.af/log': 1.0.1
+      '@cto.af/utils': 1.2.1
 
-  '@cto.af/utils@1.2.0': {}
+  '@cto.af/utils@1.2.1': {}
 
   '@eslint-community/eslint-utils@4.7.0(eslint@9.29.0)':
     dependencies:
@@ -1236,7 +1220,7 @@ snapshots:
       '@eslint/core': 0.15.0
       levn: 0.4.1
 
-  '@gerrit0/mini-shiki@3.6.0':
+  '@gerrit0/mini-shiki@3.7.0':
     dependencies:
       '@shikijs/engine-oniguruma': 3.7.0
       '@shikijs/langs': 3.7.0
@@ -1944,20 +1928,6 @@ snapshots:
 
   pino-std-serializers@7.0.0: {}
 
-  pino@9.6.0:
-    dependencies:
-      atomic-sleep: 1.0.0
-      fast-redact: 3.5.0
-      on-exit-leak-free: 2.1.2
-      pino-abstract-transport: 2.0.0
-      pino-std-serializers: 7.0.0
-      process-warning: 4.0.1
-      quick-format-unescaped: 4.0.4
-      real-require: 0.2.0
-      safe-stable-stringify: 2.5.0
-      sonic-boom: 4.2.0
-      thread-stream: 3.1.0
-
   pino@9.7.0:
     dependencies:
       atomic-sleep: 1.0.0
@@ -1973,8 +1943,6 @@ snapshots:
       thread-stream: 3.1.0
 
   prelude-ls@1.2.1: {}
-
-  process-warning@4.0.1: {}
 
   process-warning@5.0.0: {}
 
@@ -2125,7 +2093,7 @@ snapshots:
 
   typedoc@0.28.5(typescript@5.8.3):
     dependencies:
-      '@gerrit0/mini-shiki': 3.6.0
+      '@gerrit0/mini-shiki': 3.7.0
       lunr: 2.3.9
       markdown-it: 14.1.0
       minimatch: 9.0.5
