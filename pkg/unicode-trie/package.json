@@ -43,8 +43,8 @@
   "license": "MIT",
   "dependencies": {
     "@cto.af/log": "1.0.1",
-    "@cto.af/ucd": "1.1.1",
-    "@cto.af/utils": "1.2.0",
+    "@cto.af/ucd": "1.1.2",
+    "@cto.af/utils": "1.2.1",
     "fflate": "^0.8.2"
   },
   "devDependencies": {
