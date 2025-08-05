@@ -18,11 +18,11 @@ async function rmSafe(fn) {
 }
 
 describe('writeFile', () => {
-  after(async() => {
+  after(async () => {
     await rmSafe(temp);
   });
 
-  it('db as string', async() => {
+  it('db as string', async () => {
     const out = await writeFile('LineBreak.txt', {
       cacheDir: dirPath,
       out: temp,
@@ -32,7 +32,7 @@ describe('writeFile', () => {
     assert(lb);
   });
 
-  it('db as array', async() => {
+  it('db as array', async () => {
     const out = await writeFile([{name: 'LineBreak.txt'}], {
       cacheDir: dirPath,
       dir: dirURL,
@@ -50,7 +50,7 @@ describe('writeFile', () => {
     assert(out2 instanceof URL);
   });
 
-  it('handles empty inputs', async() => {
+  it('handles empty inputs', async () => {
     assert.rejects(() => writeFile('test.txt', {
       cacheDir: dirPath,
       dir: Buffer.from(dirPath),
@@ -68,7 +68,7 @@ describe('writeFile', () => {
     assert(out instanceof URL);
   });
 
-  it('handles non-codepoint inputs', async() => {
+  it('handles non-codepoint inputs', async () => {
     await rmSafe(temp);
     await assert.rejects(() => writeFile('testBad.txt', {
       cacheDir: dirPath,
@@ -78,7 +78,7 @@ describe('writeFile', () => {
     }), /First field not codepoints/);
   });
 
-  it('allows direct modification of the builder', async() => {
+  it('allows direct modification of the builder', async () => {
     await rmSafe(temp);
     let count = 0;
     await writeFile([{transform(b) {
@@ -90,7 +90,7 @@ describe('writeFile', () => {
     assert.equal(count, 1);
   });
 
-  it('handles bad inputs', async() => {
+  it('handles bad inputs', async () => {
     await assert.rejects(() => writeFile(0));
     await assert.rejects(() => writeFile([]));
   });
