@@ -16,15 +16,15 @@ async function rmSafe(fn) {
 }
 
 describe('touch', () => {
-  after(async() => {
+  after(async () => {
     await rmSafe(touchFile);
   });
 
-  it('ENOENT', async() => {
+  it('ENOENT', async () => {
     assert.equal(await touch(touchFile), touchFile);
   });
 
-  it('updates', async() => {
+  it('updates', async () => {
     await fs.writeFile(touchFile, Buffer.from(''));
     const d = new Date(0);
     await touch(touchFile, d);
@@ -37,7 +37,7 @@ describe('touch', () => {
     assert.notEqual(s1.atime, 0);
   });
 
-  it('errors on unexpected', async() => {
+  it('errors on unexpected', async () => {
     await assert.rejects(() => touch(touchFile, 'a'));
   });
 });

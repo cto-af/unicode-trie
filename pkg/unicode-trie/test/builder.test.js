@@ -15,7 +15,7 @@ describe('unicode trie builder', () => {
     }
   });
 
-  it('generates a module', async() => {
+  it('generates a module', async () => {
     const trie = new UnicodeTrieBuilder(0, 99);
     const lastModified = {'Foo.txt': new Date().toUTCString()};
     const etag = {'Foo.txt': 'MyEtag'};
