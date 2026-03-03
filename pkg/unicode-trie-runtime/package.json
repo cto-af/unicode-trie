@@ -1,6 +1,6 @@
 {
   "name": "@cto.af/unicode-trie-runtime",
-  "version": "3.2.8",
+  "version": "3.2.9",
   "description": "Runtime code for unicode-trie files.",
   "type": "module",
   "exports": {
@@ -18,7 +18,7 @@
     }
   },
   "main": "index.js",
-    "scripts": {
+  "scripts": {
     "clean": "rm -rf coverage docs types",
     "docs": "typedoc",
     "test": "mocha",
