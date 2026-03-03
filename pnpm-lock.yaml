@@ -59,7 +59,7 @@ importers:
         specifier: 6.2.5
         version: 6.2.5(eslint@10.0.2)(typescript@5.9.3)
       '@cto.af/unicode-trie-runtime':
-        specifier: 3.2.6
+        specifier: 3.2.7
         version: link:../unicode-trie-runtime
       '@types/node':
         specifier: 25.3.3

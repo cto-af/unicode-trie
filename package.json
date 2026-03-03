@@ -15,7 +15,7 @@
     "types": "pnpm run -r types",
     "examples": "node examples/genLineBreak.js",
     "build": "npm run types && npm run lint && npm run test && npm run docs",
-    "version": "monopub version && pnpm run --sequential --if-present -r version"
+    "version": "monopub version && pnpm run --sequential --if-present -r version && pnpm i -r && git add pnpm-lock.yaml"
   },
   "keywords": [
     "unicode",
