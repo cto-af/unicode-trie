@@ -210,7 +210,7 @@ export async function writeFile(db, opts = {}) {
     if (!errCode(e, 'ENOENT')) {
       throw e;
     }
-    log.debug('Output file does not exist.  Creating.', out);
+    log.debug('Output file "%s" does not exist.  Creating.', out);
     alwaysParse = true;
   }
 

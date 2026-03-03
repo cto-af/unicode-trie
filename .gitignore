@@ -1,3 +1,6 @@
+.DS_Store
+.pnpm-store/
+.pnpm-store/
 coverage/
 examples/LineBreak.js
 node_modules/
