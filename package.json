@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "types": "pnpm run -r types",
     "examples": "node examples/genLineBreak.js",
-    "build": "npm run lint && npm run types && npm run test && npm run docs",
+    "build": "npm run types && npm run lint && npm run test && npm run docs",
     "version": "monopub version && pnpm run --sequential --if-present -r version"
   },
   "keywords": [
@@ -36,17 +36,23 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@cto.af/eslint-config": "6.0.13",
+    "@cto.af/eslint-config": "6.2.5",
     "@cto.af/monopub": "1.2.2",
     "@cto.af/unicode-trie": "link:pkg/unicode-trie",
     "@cto.af/unicode-trie-runtime": "link:pkg/unicode-trie-runtime",
-    "c8": "10.1.3",
-    "eslint": "9.32.0",
-    "eslint-plugin-mocha": "11.1.0",
-    "mocha": "11.7.1",
-    "typescript": "5.9.2"
+    "eslint": "10.0.2",
+    "eslint-plugin-mocha": "11.2.0",
+    "mocha": "11.7.5",
+    "superc8": "^12.2.4",
+    "typescript": "5.9.3"
   },
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@10.30.3",
+  "pnpm": {
+    "overrides": {
+      "mocha@11.7.5>diff": "8.0.3",
+      "mocha@11.7.5>serialize-javascript": "7.0.3"
+    }
+  },
   "engines": {
     "node": ">=20"
   }

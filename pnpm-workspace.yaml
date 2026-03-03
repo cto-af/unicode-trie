@@ -3,3 +3,4 @@ packages:
   - pkg/*
 overrides:
   '@cto.af/unicode-trie-runtime': link:pkg/unicode-trie-runtime
+linkWorkspacePackages: true
