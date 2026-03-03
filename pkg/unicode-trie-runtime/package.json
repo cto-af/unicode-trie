@@ -3,9 +3,22 @@
   "version": "3.2.8",
   "description": "Runtime code for unicode-trie files.",
   "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./constants.js": {
+      "default": "./constants.js",
+      "types": "./types/constants.js"
+    },
+    "./swap.js": {
+      "default": "./swap.js",
+      "types": "./types/swap.js"
+    }
+  },
   "main": "index.js",
-  "types": "./types",
-  "scripts": {
+    "scripts": {
     "clean": "rm -rf coverage docs types",
     "docs": "typedoc",
     "test": "mocha",
