@@ -56,31 +56,31 @@ importers:
         version: 0.8.2
     devDependencies:
       '@cto.af/eslint-config':
-        specifier: 6.2.5
+        specifier: ^6.2.5
         version: 6.2.5(eslint@10.0.3)(typescript@5.9.3)
       '@cto.af/unicode-trie-runtime':
-        specifier: 3.2.9
+        specifier: ^3.2.9
         version: link:../unicode-trie-runtime
       '@types/node':
-        specifier: 25.5.0
+        specifier: ^25.5.0
         version: 25.5.0
       c8:
-        specifier: 11.0.0
+        specifier: ^11.0.0
         version: 11.0.0
       eslint:
-        specifier: 10.0.3
+        specifier: ^10.0.3
         version: 10.0.3
       eslint-plugin-mocha:
-        specifier: 11.2.0
+        specifier: ^11.2.0
         version: 11.2.0(eslint@10.0.3)
       mocha:
-        specifier: 11.7.5
+        specifier: ^11.7.5
         version: 11.7.5
       typedoc:
-        specifier: 0.28.17
+        specifier: ^0.28.17
         version: 0.28.17(typescript@5.9.3)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
 
   pkg/unicode-trie-runtime:
@@ -90,19 +90,19 @@ importers:
         version: 0.8.2
     devDependencies:
       '@types/node':
-        specifier: 25.5.0
+        specifier: ^25.5.0
         version: 25.5.0
       c8:
-        specifier: 11.0.0
+        specifier: ^11.0.0
         version: 11.0.0
       mocha:
-        specifier: 11.7.5
+        specifier: ^11.7.5
         version: 11.7.5
       typedoc:
-        specifier: 0.28.17
+        specifier: ^0.28.17
         version: 0.28.17(typescript@5.9.3)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
 
 packages:
