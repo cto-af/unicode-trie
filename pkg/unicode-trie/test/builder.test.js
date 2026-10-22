@@ -1,5 +1,5 @@
 import {UnicodeTrieBuilder} from '../builder.js';
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const temp = new URL(`./test-module-builder-${process.pid}.js`, import.meta.url);

@@ -224,13 +224,15 @@ export async function writeFile(db, opts = {}) {
       continue;
     }
     const {name, transform: xform} = file;
-    const ucdFile = await ucd.parse(name, {
+
+    /** @type {import('@cto.af/ucd').ParsedFileInfo} */
+    const uFile = await ucd.parse(name, {
       ...opts,
       etag: etag[name],
       lastModified: lastModified[name],
     });
-    log.debug('HTTP Status %d', ucdFile.status);
-    if (ucdFile.status === 304) {
+    log.debug('HTTP Status %d', uFile.status);
+    if (uFile.status === 304) {
       // OK to assume all database files are updated at once.
       log.debug('Touching %s to remember last time we checked', out);
       return touch(out, now);
@@ -238,16 +240,16 @@ export async function writeFile(db, opts = {}) {
 
     // Would have thrown an error in ucd if not 200 or 304, and 304 is handled
     // above.
-    assert(isSuccess(ucdFile));
-    etag[name] = ucdFile.etag;
-    lastModified[name] = ucdFile.lastModified;
+    assert(isSuccess(uFile));
+    etag[name] = uFile.etag;
+    lastModified[name] = uFile.lastModified;
 
     if (!version) {
-      ({version, date: inputFileDate} = ucdFile.parsed);
+      ({version, date: inputFileDate} = uFile.parsed);
     }
 
     const yform = xform ?? transform;
-    for (const {fields} of ucdFile.parsed.entries) {
+    for (const {fields} of uFile.parsed.entries) {
       const [first, ...vals] = fields;
       if (typeof first === 'string') {
         throw new Error('First field not codepoints');

@@ -2,7 +2,7 @@
 /* eslint-disable prefer-destructuring */
 import {UnicodeTrie} from '@cto.af/unicode-trie-runtime';
 import {UnicodeTrieBuilder} from '../builder.js';
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 import {gzipSync} from 'fflate';
 
 describe('unicode trie', () => {

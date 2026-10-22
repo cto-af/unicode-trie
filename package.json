@@ -36,24 +36,19 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@cto.af/eslint-config": "6.2.5",
-    "@cto.af/monopub": "1.2.4",
+    "@cto.af/eslint-config": "7.0.3",
+    "@cto.af/monopub": "2.0.2",
     "@cto.af/unicode-trie": "link:pkg/unicode-trie",
     "@cto.af/unicode-trie-runtime": "link:pkg/unicode-trie-runtime",
-    "eslint": "10.0.3",
-    "eslint-plugin-mocha": "11.2.0",
-    "mocha": "11.7.5",
-    "superc8": "^12.3.1",
-    "typescript": "5.9.3"
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "eslint": "10.12.0",
+    "eslint-plugin-mocha": "12.0.2",
+    "mocha": "12.0.3",
+    "superc8": "^12.7.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
-  "packageManager": "pnpm@10.32.1",
-  "pnpm": {
-    "overrides": {
-      "mocha@11.7.5>diff": "8.0.3",
-      "mocha@11.7.5>serialize-javascript": "7.0.3"
-    }
-  },
+  "packageManager": "pnpm@12.13.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
