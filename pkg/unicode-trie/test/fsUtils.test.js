@@ -1,5 +1,5 @@
 import * as fs from 'node:fs/promises';
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 import {touch} from '../fsUtils.js';
 

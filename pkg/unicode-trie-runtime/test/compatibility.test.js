@@ -1,5 +1,5 @@
 import {UnicodeTrie} from '../index.js';
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 
 // Unicode 15.1, fflate compressed
 const EastAsianWidthNew = `\

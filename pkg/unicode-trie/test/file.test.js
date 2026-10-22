@@ -1,4 +1,4 @@
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 import fs from 'node:fs/promises';
 import {writeFile} from '../file.js';
